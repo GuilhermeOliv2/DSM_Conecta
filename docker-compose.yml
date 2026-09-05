@@ -10,9 +10,9 @@ services:
       - "1883:1883" #MQTT Padrão
       - "9001:9001" #Websocket
     volumes: #volumes são usados para mapear pastas do host para o container, permitindo persistência de dados e configuração
-      - ./mosquitto/config:/mosquitto/config #Mapeando a pasta de configuração do host para o container
-      - ./mosquitto/data:/mosquitto/data #Mapeando a pasta de dados do host para o container
-      - ./mosquitto/log:/mosquitto/log #Mapeando a pasta de logs do host para o container
+      - ./infra/mosquitto/config:/mosquitto/config #Mapeando a pasta de configuração do host para o container
+      - ./infra/mosquitto/data:/mosquitto/data #Mapeando a pasta de dados do host para o container
+      - ./infra/mosquitto/log:/mosquitto/log #Mapeando a pasta de logs do host para o container
   #DB PostgreSQL com extensão de série temporal (TimescaleDB)
   postgres:
     image: timescale/timescaledb:latest-pg15
@@ -27,4 +27,3 @@ services:
     volumes:
       - ./postgres/data:/var/lib/postgresql/data #Mapeando a pasta de dados do host para o container
       - ./postgres/init:/docker-entrypoint-initdb.d #Mapeando a pasta de inicialização do host para o container, permitindo a execução de scripts SQL na inicialização do banco de dados
-      
