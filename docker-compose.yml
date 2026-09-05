@@ -1,0 +1,30 @@
+version: 3.8
+
+services:
+  #BROKER MQTT
+  mosquitto:  
+    image: eclipse-mosquitto:2.0  #imagem é um modelo que inclui o que precisamos para rodar o app
+    container_name: mosquitto
+    restart: unless-stopped # Reiniciar o container a menos que ele seja parado manualmente
+    ports:
+      - "1883:1883" #MQTT Padrão
+      - "9001:9001" #Websocket
+    volumes: #volumes são usados para mapear pastas do host para o container, permitindo persistência de dados e configuração
+      - ./mosquitto/config:/mosquitto/config #Mapeando a pasta de configuração do host para o container
+      - ./mosquitto/data:/mosquitto/data #Mapeando a pasta de dados do host para o container
+      - ./mosquitto/log:/mosquitto/log #Mapeando a pasta de logs do host para o container
+  #DB PostgreSQL com extensão de série temporal (TimescaleDB)
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: dsm_conecta_db
+    restart: always #a diferenca entre "always" e "unless-stopped" é que o "always" reinicia o container mesmo que ele seja parado manualmente, enquanto o "unless-stopped" não reinicia se for parado manualmente.
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB} 
+    ports:
+      - "5432:5432" #Porta padrão do PostgreSQL
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data #Mapeando a pasta de dados do host para o container
+      - ./postgres/init:/docker-entrypoint-initdb.d #Mapeando a pasta de inicialização do host para o container, permitindo a execução de scripts SQL na inicialização do banco de dados
+      
