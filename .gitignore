@@ -1,1 +1,12 @@
+# Docker volumes (dados dos containers)
+/postgres/
+/infra/mosquitto/data/
+/infra/mosquitto/log/
+
+# Arquivos de ambiente (senhas)
 .env
+
+# Pastas do Flutter
+/build/
+/.dart_tool/
+/pubspec.lock
