@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: DSM Conecta API
+  description: API para o projeto DSM Conecta
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+
+paths:
+  \course:
+    get:
+      summary: Retorna uma lista de cursos
+      responses:
+        '200':
+          description: sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+  
+  /quiz/subimt/:
+  post:
+    summary: Submete um quiz
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QuizSubmission'
+      responses:
+          '200':
+            description: Quiz submetido com sucesso
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/QuizSubmissionResponse'
+
+components:
+  schemas:
+    CourseDetail:
+      type: object
+      properties:
+        title:  
+          type: string
+          example: "desenvolvimento de software multiplataforma"
+        degree:
+          type: string
+          example: "Graduação tecnologia"
+        durationYears:
+          type: integer
+          example: 3
+        period:
+          type: string
+          example: "Vespertino"
+
+    quizSubmission:
+      type: object
+      requered:
+        - sessionId
+        - answers
+      properties:
+        sessionId:
+          type: string
+          example: "sess_123456"
+        answers:
+        type: object
+        exaple:
+          question1: "A"
+          question2: "B"
+          question3: "C"
+        
+    quizResult:
+      type: object
+      properties:
+        primaryprofile:
+          type: string
+          example: "Frontend_UX"
+          matchpercentege:
+          type:number
+          exaple: 85.0
