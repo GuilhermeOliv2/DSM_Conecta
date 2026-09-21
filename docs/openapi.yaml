@@ -1,83 +1,391 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: DSM Conecta API
-  description: API para o projeto DSM Conecta
+  title: DSM Conecta - API Specification
+  description: Especificação da interface de programação REST para o aplicativo DSM Conecta.
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
-    description: Servidor local
+  - url: http://localhost:8000/api/v1
+    description: Servidor Local
 
 paths:
-  \course:
+  /course:
     get:
-      summary: Retorna uma lista de cursos
+      summary: Retorna informações institucionais do curso (RF01)
+      description: Recupera perfil do egresso, duração, turnos e formas de ingresso.
       responses:
         '200':
-          description: sucesso
+          description: Sucesso ao obter detalhes do curso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetails'
+
+  /course/curriculum:
+    get:
+      summary: Retorna a matriz curricular do curso (RF02)
+      description: Lista as matérias divididas por semestre com resumo do que é ensinado.
+      responses:
+        '200':
+          description: Matriz curricular retornada com sucesso.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Course'
-  
-  /quiz/subimt/:
-  post:
-    summary: Submete um quiz
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/QuizSubmission'
+                  $ref: '#/components/schemas/SemesterCurriculum'
+
+  /projects:
+    get:
+      summary: Lista os projetos desenvolvidos pelos alunos (RF03)
+      description: Retorna a lista de projetos com imagem, descrição completa e tecnologias empregadas.
       responses:
-          '200':
-            description: Quiz submetido com sucesso
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/QuizSubmissionResponse'
+        '200':
+          description: Lista de projetos retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProject'
+
+  /quiz/submit:
+    post:
+      summary: Submete as respostas do quiz vocacional (RF09)
+      description: Recebe as alternativas selecionadas e devolve o perfil orientativo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizSubmission'
+      responses:
+        '200':
+          description: Quiz processado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResult'
+
+  /testimonials:
+    get:
+      summary: Exibe depoimentos de estudantes e egressos (RF04)
+      description: Retorna uma lista de depoimentos em formato de texto, incluindo imagem de perfil do autor e seu vínculo com o curso.
+      responses:
+        '200':
+          description: Lista de depoimentos retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Testimonial'
+  /events:
+    get:
+      summary: Apresenta a agenda de eventos, prazos e processo seletivo (RF05)
+      description: Retorna a lista de eventos institucionais, datas importantes e etapas do vestibular/seleção, com filtros por categoria.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Filtra eventos por categoria específica.
+          schema:
+            type: string
+            enum:
+              - EVENTO
+              - PRAZO
+              - PROCESSO_SELETIVO
+      responses:
+        '200':
+          description: Agenda de eventos e prazos retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventItem'
+
+  /faq:
+    get:
+      summary: Lista perguntas frequentes sobre o curso (RF06)
+      description: Retorna uma lista de perguntas e respostas mais comuns sobre o DSM.
+      responses:
+        '200':
+          description: FAQ retornado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FaqItem'
+
+  /contact/coordination:
+    post:
+      summary: Envia mensagem à coordenação do curso (RF06)
+      description: Permite o envio de dúvidas e mensagens diretamente para a coordenação.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoordinationMessage'
+      responses:
+        '200':
+          description: Mensagem enviada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Sua mensagem foi enviada com sucesso para a coordenação."
+  
 
 components:
   schemas:
-    CourseDetail:
+    CourseDetails:
       type: object
       properties:
-        title:  
+        title:
           type: string
-          example: "desenvolvimento de software multiplataforma"
+          example: "Desenvolvimento de Software Multiplataforma"
         degree:
           type: string
-          example: "Graduação tecnologia"
+          example: "Graduação Tecnológica"
+        graduateProfile:
+          type: string
+          example: "O profissional atua no desenvolvimento e arquitetura de software para web, mobile e nuvem."
         durationYears:
           type: integer
           example: 3
         period:
-          type: string
-          example: "Vespertino"
+          type: array
+          items:
+            type: string
+          example: ["NOTURNO", "MATUTINO"]
+        admissionMethods:
+          type: array
+          items:
+            type: string
+          example:
+            - "Vestibular FATEC"
+            - "Provão Paulista"
 
-    quizSubmission:
+    SemesterCurriculum:
       type: object
-      requered:
+      properties:
+        semester:
+          type: integer
+          example: 1
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+
+    Subject:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "DSM101"
+        name:
+          type: string
+          example: "Algoritmos e Lógica de Programação"
+        workloadHours:
+          type: integer
+          example: 80
+        description:
+          type: string
+          example: "Conceitos básicos de programação, controle de fluxo e raciocínio lógico."
+
+    StudentProject:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - imageUrl
+        - tags
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+        title:
+          type: string
+          example: "DSM Conecta App"
+        tagline:
+          type: string
+          example: "Divulgação do curso e telemetria em tempo real"
+        description:
+          type: string
+          example: "Aplicativo mobile e painel web desenvolvido para conectar a comunidade acadêmica do curso DSM, integrando leitura de sensores via MQTT e vitrine de projetos."
+        imageUrl:
+          type: string
+          format: uri
+          example: "https://storage.googleapis.com/dsm-conecta/projects/dsm-conecta.png"
+        tags:
+          type: array
+          items:
+            type: string
+          example:
+            - "Flutter"
+            - "Python"
+            - "FastAPI"
+            - "MQTT"
+        semesterCreated:
+          type: integer
+          example: 6
+
+    QuizSubmission:
+      type: object
+      required:
         - sessionId
         - answers
       properties:
         sessionId:
           type: string
-          example: "sess_123456"
+          example: "sess_a8b9c7"
         answers:
-        type: object
-        exaple:
-          question1: "A"
-          question2: "B"
-          question3: "C"
-        
-    quizResult:
+          type: object
+          properties:
+            q1:
+              type: string
+              example: "opt_a"
+            q2:
+              type: string
+              example: "opt_c"
+
+    QuizResult:
       type: object
       properties:
-        primaryprofile:
+        primaryProfile:
           type: string
-          example: "Frontend_UX"
-          matchpercentege:
-          type:number
-          exaple: 85.0
+          enum:
+            - FRONTEND_UX
+            - BACKEND_ENG
+            - DATA_SCIENCE
+            - DEVOPS_INFRA
+          example: "FRONTEND_UX"
+        matchPercentage:
+          type: number
+          format: float
+          example: 87.5
+
+    Testimonial:
+      type: object
+      required:
+        - id
+        - authorName
+        - role
+        - text
+        - imageUrl
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "b1fec399-8d1a-4bf9-cc7e-8bb9bd380a22"
+        authorName:
+          type: string
+          example: "Ana Silva"
+        role:
+          type: string
+          enum:
+            - ESTUDANTE
+            - EGRESSO
+          example: "EGRESSO"
+        graduationYear:
+          type: integer
+          example: 2025
+        text:
+          type: string
+          example: "O curso de DSM me deu toda a base prática necessária para ingressar no mercado de trabalho como desenvolvedora Full Stack antes mesmo de me formar."
+        imageUrl:
+          type: string
+          format: uri
+          example: "https://storage.googleapis.com/dsm-conecta/testimonials/ana-silva.png"
+    EventItem:
+      type: object
+      required:
+        - id
+        - title
+        - category
+        - startDate
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "c2fec400-9e2b-5cf0-dd8f-9bb9bd380a33"
+        title:
+          type: string
+          example: "Inscrições para o Vestibular FATEC 1º Semestre"
+        description:
+          type: string
+          example: "Período oficial para inscrição no processo seletivo do curso DSM no site do vestibular."
+        category:
+          type: string
+          enum:
+            - EVENTO
+            - PRAZO
+            - PROCESSO_SELETIVO
+          example: "PROCESSO_SELETIVO"
+        startDate:
+          type: string
+          format: date-time
+          example: "2026-10-01T08:00:00Z"
+        endDate:
+          type: string
+          format: date-time
+          example: "2026-11-15T23:59:59Z"
+        location:
+          type: string
+          example: "Online / site vestibularfatec.com.br"
+        externalUrl:
+          type: string
+          format: uri
+          example: "https://www.vestibularfatec.com.br"
+    FaqItem:
+      type: object
+      required:
+        - id
+        - question
+        - answer
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "d3fec501-0f3c-6dg1-ee9g-0cc0ce491b44"
+        category:
+          type: string
+          example: "Ingresso e Vestibular"
+        question:
+          type: string
+          example: "O curso de DSM é presencial ou EAD?"
+        answer:
+          type: string
+          example: "O curso é presencial, oferecido no campus FATEC Zona Sul com aulas práticas nos laboratórios."
+
+    CoordinationMessage:
+      type: object
+      required:
+        - senderName
+        - senderEmail
+        - subject
+        - message
+      properties:
+        senderName:
+          type: string
+          example: "João Silva"
+        senderEmail:
+          type: string
+          format: email
+          example: "joao.silva@email.com"
+        subject:
+          type: string
+          example: "Dúvida sobre transferência externa"
+        message:
+          type: string
+          example: "Gostaria de saber quais documentos são necessários para solicitar transferência para o curso de DSM no próximo semestre."
