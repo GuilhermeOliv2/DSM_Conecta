@@ -71,7 +71,7 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 
 | Iteração | Previsão de entrega | Objetivo e Entregáveis | Status | Comentarios |
 | ----- | ----- | ----- | :---: | ----- |
-| 0 | 14/09/2026 | Iniciação, levantamento de requisitos, arquitetura, contratos e ambiente docker compose | Em Andamento | Sem ata formalizada nesta sessão; pendência sob alinhamento da equipe para as próximas reuniões. |
+| 0 | 14/09/2026 | Iniciação, levantamento de requisitos, arquitetura, contratos e ambiente docker compose | Concluída | Formalizada na Ata 01 (22/09/2026). |
 | 1 | 28/09/2026 | Controle de versão, integração contínua e fundação da prática de testes | Não Iniciado |  |
 | 2 | 12/10/2026 | Broker de mensageria, produtores de dados e nó sensor simulado | Não Iniciado |  |
 | 3 | 26/10/2026 | Serviço de ingestão concorrente e persistência em série temporal | Não Iniciado |  |
