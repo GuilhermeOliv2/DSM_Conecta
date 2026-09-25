@@ -6,6 +6,12 @@
 # Arquivos de ambiente (senhas)
 .env
 
+# Cache do Python e do pytest
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
 # Pastas do Flutter
 /build/
 /.dart_tool/
