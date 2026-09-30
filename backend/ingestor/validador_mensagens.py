@@ -30,6 +30,6 @@ def validar_mensagem(texto):
         if campo not in mensagem:
             raise MensagemInvalida(
                 f"Campo obrigatório ausente: {campo}"
-            )
+            ) 
 
     return mensagem
