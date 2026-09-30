@@ -21,8 +21,15 @@ def validar_mensagem(texto):
     except json.JSONDecodeError as erro:
         raise MensagemInvalida("JSON malformado") from erro
 
+    if not isinstance(mensagem, dict):
+        raise MensagemInvalida(
+            "Estrutura inválida: a mensagem deve ser um objeto JSON"
+        )
+
     for campo in CAMPOS_OBRIGATORIOS:
         if campo not in mensagem:
-            raise MensagemInvalida(f"campo obrigatorio ausente: {campo}")
+            raise MensagemInvalida(
+                f"Campo obrigatório ausente: {campo}"
+            )
 
     return mensagem

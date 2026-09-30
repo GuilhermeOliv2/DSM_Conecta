@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from ingestor.validador import MensagemInvalida, validar_mensagem
+from backend.ingestor.validador_mensagens import MensagemInvalida, validar_mensagem
 
 
 def mensagem_valida():
