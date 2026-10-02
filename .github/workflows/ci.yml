@@ -103,7 +103,7 @@ jobs:
             --host 127.0.0.1 \
             --port 1883 \
             --topic ci/health \
-            --C 1 \
+            -C 1 \
             --timeout 15 > /tmp/mqtt-message &
           subscriber_pid=$!
           sleep 2
