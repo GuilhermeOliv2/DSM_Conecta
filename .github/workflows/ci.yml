@@ -1,0 +1,171 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate-compose:
+    name: Validate Docker Compose
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ci_user
+      POSTGRES_PASSWORD: ci_password
+      POSTGRES_DB: dsm_conecta_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Compose file
+        run: docker compose config --quiet
+
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements.txt
+
+      - name: Run message validator tests
+        run: python -m pytest backend/tests
+
+  integration:
+    name: Compose integration checks
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ci_user
+      POSTGRES_PASSWORD: ci_password
+      POSTGRES_DB: dsm_conecta_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MQTT client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes mosquitto-clients
+
+      - name: Start Mosquitto and PostgreSQL
+        run: docker compose up --detach mosquitto postgres
+
+      - name: Wait for PostgreSQL
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            if docker compose exec --no-TTY postgres pg_isready \
+              --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose logs postgres
+          exit 1
+
+      - name: Verify MQTT publish and subscribe
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            if (echo > /dev/tcp/127.0.0.1/1883) 2>/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              docker compose logs mosquitto
+              exit 1
+            fi
+            sleep 1
+          done
+
+          message="ci-message-${GITHUB_RUN_ID}"
+          timeout 15s mosquitto_sub \
+            --host 127.0.0.1 \
+            --port 1883 \
+            --topic ci/health \
+            -C 1 > /tmp/mqtt-message &
+          subscriber_pid=$!
+          sleep 2
+          mosquitto_pub \
+            --host 127.0.0.1 \
+            --port 1883 \
+            --topic ci/health \
+            --message "$message"
+          wait "$subscriber_pid"
+          grep --fixed-strings --line-regexp "$message" /tmp/mqtt-message
+
+      - name: Show service logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop Compose services
+        if: always()
+        run: docker compose down --volumes
+
+  flutter:
+    name: Flutter checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check whether the Flutter app is implemented
+        id: app-status
+        shell: bash
+        run: |
+          if [ -s pubspec.yaml ]; then
+            echo "implemented=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "implemented=false" >> "$GITHUB_OUTPUT"
+            echo "::warning file=app/pubspec.yaml::Flutter app not implemented yet; Flutter checks were skipped."
+          fi
+
+      - name: Set up Flutter
+        if: steps.app-status.outputs.implemented == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        if: steps.app-status.outputs.implemented == 'true'
+        run: flutter pub get
+
+      - name: Check formatting
+        if: steps.app-status.outputs.implemented == 'true'
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze Flutter code
+        if: steps.app-status.outputs.implemented == 'true'
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        if: steps.app-status.outputs.implemented == 'true'
+        run: flutter test
+
+      - name: Build Flutter web application
+        if: steps.app-status.outputs.implemented == 'true'
+        run: flutter build web --release
