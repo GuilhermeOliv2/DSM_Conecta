@@ -99,12 +99,11 @@ jobs:
           done
 
           message="ci-message-${GITHUB_RUN_ID}"
-          mosquitto_sub \
+          timeout 15s mosquitto_sub \
             --host 127.0.0.1 \
             --port 1883 \
             --topic ci/health \
-            -C 1 \
-            --timeout 15 > /tmp/mqtt-message &
+            -C 1 > /tmp/mqtt-message &
           subscriber_pid=$!
           sleep 2
           mosquitto_pub \
