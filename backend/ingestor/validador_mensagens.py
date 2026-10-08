@@ -1,6 +1,6 @@
 import json
 import logging
-import re
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 VERSAO_ESQUEMA_SUPORTADA = "1.0"
@@ -68,14 +68,15 @@ def validar_mensagem(
                 f"Tipo inválido para o campo: {campo}", logger_
             )
 
-    if topico is not None:
-        topico_esperado = f"telemetria/{mensagem['origin']}/{mensagem['category']}"
-        if not re.fullmatch(
-            r"telemetria/[^/]+/[^/]+", topico
-        ) or topico != topico_esperado:
-            return _registrar_mensagem_invalida(
-                f"Tópico MQTT inválido: {topico}", logger_
-            )
+    if not _timestamp_valido(mensagem["timestamp"]):
+        return _registrar_mensagem_invalida(
+            f"Timestamp inválido: {mensagem['timestamp']}", logger_
+        )
+
+    if topico is not None and not _topico_valido(topico, mensagem):
+        return _registrar_mensagem_invalida(
+            f"Tópico MQTT inválido: {topico}", logger_
+        )
 
     if mensagens_processadas is not None:
         event_id = mensagem["event_id"]
@@ -88,6 +89,28 @@ def validar_mensagem(
         persistencia.append(mensagem)
 
     return mensagem
+
+
+def _timestamp_valido(timestamp):
+    try:
+        instante = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return instante.tzinfo is not None
+
+
+def _topico_valido(topico, mensagem):
+    partes = topico.split("/")
+    if len(partes) != 5:
+        return False
+    prefixo, ambiente, origem, categoria, identificador = partes
+    return (
+        prefixo == "dsm"
+        and ambiente != ""
+        and origem == mensagem["origin"]
+        and categoria == mensagem["category"]
+        and identificador != ""
+    )
 
 
 def _registrar_mensagem_invalida(motivo, logger_, erro=None):
