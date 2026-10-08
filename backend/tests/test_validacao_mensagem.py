@@ -90,19 +90,54 @@ def test_tipo_de_campo_invalido_e_rejeitado(campo, valor):
 
 def test_topico_mqtt_valido_e_aceito():
     msg = mensagem_valida()
-    topico = f"telemetria/{msg['origin']}/{msg['category']}"
+    topico = f"dsm/prod/{msg['origin']}/{msg['category']}/tela"
 
     resultado = validar_mensagem(json.dumps(msg), topico=topico)
 
     assert resultado["event_id"] == msg["event_id"]
 
 
-def test_topico_mqtt_invalido_e_rejeitado():
+@pytest.mark.parametrize(
+    "topico",
+    [
+        "outro-topico",
+        "telemetria/app/interacao",
+        "dsm/prod/app/interacao",
+        "dsm//app/interacao/tela",
+        "dsm/prod/app/interacao/",
+        "dsm/prod/totem/interacao/tela",
+        "dsm/prod/app/quiz/tela",
+    ],
+)
+def test_topico_mqtt_invalido_e_rejeitado(topico):
     with pytest.raises(MensagemInvalida):
-        validar_mensagem(
-            json.dumps(mensagem_valida()),
-            topico="outro-topico",
-        )
+        validar_mensagem(json.dumps(mensagem_valida()), topico=topico)
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        "banana",
+        "",
+        "2026-13-45T10:00:00Z",
+        "2026-09-25T10:00:00",
+    ],
+)
+def test_timestamp_invalido_e_rejeitado(timestamp):
+    msg = mensagem_valida()
+    msg["timestamp"] = timestamp
+
+    with pytest.raises(MensagemInvalida):
+        validar_mensagem(json.dumps(msg))
+
+
+def test_timestamp_com_fuso_horario_e_aceito():
+    msg = mensagem_valida()
+    msg["timestamp"] = "2026-09-25T07:00:00-03:00"
+
+    resultado = validar_mensagem(json.dumps(msg))
+
+    assert resultado["timestamp"] == "2026-09-25T07:00:00-03:00"
 
 
 def test_mensagem_valida_e_persistida():
