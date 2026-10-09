@@ -4,6 +4,8 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 VERSAO_ESQUEMA_SUPORTADA = "1.0"
+ORIGENS_PERMITIDAS = ("app", "totem")
+CATEGORIAS_PERMITIDAS = ("interacao", "quiz", "presenca", "sensor")
 
 CAMPOS_OBRIGATORIOS = (
     "event_id",
@@ -67,6 +69,16 @@ def validar_mensagem(
             return _registrar_mensagem_invalida(
                 f"Tipo inválido para o campo: {campo}", logger_
             )
+
+    if mensagem["origin"] not in ORIGENS_PERMITIDAS:
+        return _registrar_mensagem_invalida(
+            f"Origem não permitida: {mensagem['origin']}", logger_
+        )
+
+    if mensagem["category"] not in CATEGORIAS_PERMITIDAS:
+        return _registrar_mensagem_invalida(
+            f"Categoria não permitida: {mensagem['category']}", logger_
+        )
 
     if not _timestamp_valido(mensagem["timestamp"]):
         return _registrar_mensagem_invalida(

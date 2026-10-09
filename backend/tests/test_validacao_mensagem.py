@@ -140,6 +140,44 @@ def test_timestamp_com_fuso_horario_e_aceito():
     assert resultado["timestamp"] == "2026-09-25T07:00:00-03:00"
 
 
+@pytest.mark.parametrize("origem", ["app", "totem"])
+def test_origem_permitida_e_aceita(origem):
+    msg = mensagem_valida()
+    msg["origin"] = origem
+
+    resultado = validar_mensagem(json.dumps(msg))
+
+    assert resultado["origin"] == origem
+
+
+@pytest.mark.parametrize("origem", ["banana", "App", ""])
+def test_origem_nao_permitida_e_rejeitada(origem):
+    msg = mensagem_valida()
+    msg["origin"] = origem
+
+    with pytest.raises(MensagemInvalida):
+        validar_mensagem(json.dumps(msg))
+
+
+@pytest.mark.parametrize("categoria", ["interacao", "quiz", "presenca", "sensor"])
+def test_categoria_permitida_e_aceita(categoria):
+    msg = mensagem_valida()
+    msg["category"] = categoria
+
+    resultado = validar_mensagem(json.dumps(msg))
+
+    assert resultado["category"] == categoria
+
+
+@pytest.mark.parametrize("categoria", ["banana", "Quiz", ""])
+def test_categoria_nao_permitida_e_rejeitada(categoria):
+    msg = mensagem_valida()
+    msg["category"] = categoria
+
+    with pytest.raises(MensagemInvalida):
+        validar_mensagem(json.dumps(msg))
+
+
 def test_mensagem_valida_e_persistida():
     msg = mensagem_valida()
     persistencia = []
