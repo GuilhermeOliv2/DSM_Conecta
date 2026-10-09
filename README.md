@@ -95,6 +95,35 @@ Deve mostrar a versão do PostgreSQL com TimescaleDB. Digite `\q` para sair.
 
 > Os dados do banco e do Mosquitto ficam nas pastas `postgres/data/` e `infra/mosquitto/`, então continuam existindo mesmo depois de `docker compose down`. Só `down -v` apaga tudo.
 
+## Testes do backend
+
+Os testes do módulo de validação de mensagens ficam em `backend/tests/` e usam o [pytest](https://docs.pytest.org/). É necessário ter o Python 3 instalado.
+
+### 1. Instalar as dependências
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+### 2. Rodar os testes
+
+Dentro de `backend/`:
+
+```bash
+python -m pytest
+```
+
+Para ver também a cobertura de testes (a meta do projeto é no mínimo 70%):
+
+```bash
+python -m pytest --cov=ingestor
+```
+
+Também funciona rodando da raiz do repositório com `python -m pytest backend/tests`, que é como o CI executa.
+
+> O desenvolvimento segue TDD: o teste é commitado antes do código que o faz passar, e o CI (GitHub Actions) roda a suíte a cada push e pull request.
+
 ## Estrutura do projeto
 
 ```
