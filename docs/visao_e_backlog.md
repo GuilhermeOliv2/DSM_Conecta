@@ -62,7 +62,7 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 | RNF14 | A coleta de dados deve ser precedida de consentimento explícito, informado e revogável, em conformidade com a Lei nº 13.709/2018 | alta | Não Iniciado |  | Iteração 2 |
 | RNF15 | A identificação do visitante deve ocorrer por identificador aleatório de sessão, sem vinculação a dado pessoal | alta | Não Iniciado |  | Iteração 2 |
 | RNF16 | O painel público não deve exibir informação que permita a reidentificação de um visitante | alta | Não Iniciado |  | Iteração 5 |
-| RNF17 | A cobertura de testes automatizados do back-end deve ser de no mínimo setenta por cento das linhas | média | Em Desenvolvimento | Cobertura atual do módulo de validação: 100%. Falta o CI medir e reprovar abaixo de 70%. | Iteração 1 |
+| RNF17 | A cobertura de testes automatizados do back-end deve ser de no mínimo setenta por cento das linhas | média | Concluído | Cobertura atual do módulo de validação: 100%. O CI mede a cobertura e reprova abaixo de 70%. | Iteração 1 |
 | RNF18 | A integração contínua deve impedir a incorporação de alterações com teste falhando | média | Concluído | Pipeline de CI em GitHub Actions e ramo principal protegido, exigindo os checks antes do merge. | Iteração 1 |
 | RNF19 | A interface deve atender a requisitos básicos de acessibilidade, com contraste adequado, rótulos para leitores de tela e suporte ao aumento do tamanho de fonte | alta | Não Iniciado |  | Iteração 6 |
 | RNF20 | Os dados brutos de telemetria devem ser retidos por noventa dias e os dados agregados por cinco anos | média | Não Iniciado |  | Iteração 3 |
@@ -72,7 +72,7 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 | Iteração | Previsão de entrega | Objetivo e Entregáveis | Status | Comentarios |
 | ----- | ----- | ----- | :---: | ----- |
 | 0 | 14/09/2026 | Iniciação, levantamento de requisitos, arquitetura, contratos e ambiente docker compose | Concluída | Formalizada na Ata 01 (22/09/2026). |
-| 1 | 28/09/2026 | Controle de versão, integração contínua e fundação da prática de testes | Em Andamento | Concluídos: ramo principal protegido, pipeline de CI e primeira suíte de testes com TDD. Pendentes: análise estática no CI e medição de cobertura mínima de 70%. |
+| 1 | 28/09/2026 | Controle de versão, integração contínua e fundação da prática de testes | Concluída | Ramo principal protegido, pipeline de CI com análise estática (flake8) e cobertura mínima de 70%, e primeira suíte de testes com TDD. |
 | 2 | 12/10/2026 | Broker de mensageria, produtores de dados e nó sensor simulado | Não Iniciado |  |
 | 3 | 26/10/2026 | Serviço de ingestão concorrente e persistência em série temporal | Não Iniciado |  |
 | 4 | 09/11/2026 | Interface de programação e motor de análise em tempo real | Não Iniciado |  |

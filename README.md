@@ -122,6 +122,16 @@ python -m pytest --cov=ingestor
 
 Também funciona rodando da raiz do repositório com `python -m pytest backend/tests`, que é como o CI executa.
 
+### 3. Análise estática
+
+Da raiz do repositório:
+
+```bash
+python -m flake8 backend
+```
+
+O CI roda esse comando e também reprova o pull request se a cobertura ficar abaixo de 70%.
+
 > O desenvolvimento segue TDD: o teste é commitado antes do código que o faz passar, e o CI (GitHub Actions) roda a suíte a cada push e pull request.
 
 ## Estrutura do projeto
