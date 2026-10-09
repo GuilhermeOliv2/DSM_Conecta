@@ -172,3 +172,8 @@ jobs:
       - name: Build Flutter web application
         if: steps.app-status.outputs.implemented == 'true'
         run: flutter build web --release
+
+
+
+
+        
