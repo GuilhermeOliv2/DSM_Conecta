@@ -25,6 +25,8 @@ jobs:
       POSTGRES_USER: ci_user
       POSTGRES_PASSWORD: ci_password
       POSTGRES_DB: dsm_conecta_ci
+      MQTT_USER: ci_mqtt_user
+      MQTT_PASSWORD: ci_mqtt_password
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,6 +64,8 @@ jobs:
       POSTGRES_USER: ci_user
       POSTGRES_PASSWORD: ci_password
       POSTGRES_DB: dsm_conecta_ci
+      MQTT_USER: ci_mqtt_user
+      MQTT_PASSWORD: ci_mqtt_password
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,11 +105,22 @@ jobs:
             sleep 1
           done
 
+          if mosquitto_pub \
+            --host 127.0.0.1 \
+            --port 1883 \
+            --topic ci/health \
+            --message "sem-credenciais" 2>/dev/null; then
+            echo "O broker aceitou conexao sem autenticacao"
+            exit 1
+          fi
+
           message="ci-message-${GITHUB_RUN_ID}"
           timeout 15s mosquitto_sub \
             --host 127.0.0.1 \
             --port 1883 \
             --topic ci/health \
+            -u "$MQTT_USER" \
+            -P "$MQTT_PASSWORD" \
             -C 1 > /tmp/mqtt-message &
           subscriber_pid=$!
           sleep 2
@@ -113,6 +128,8 @@ jobs:
             --host 127.0.0.1 \
             --port 1883 \
             --topic ci/health \
+            -u "$MQTT_USER" \
+            -P "$MQTT_PASSWORD" \
             --message "$message"
           wait "$subscriber_pid"
           grep --fixed-strings --line-regexp "$message" /tmp/mqtt-message
