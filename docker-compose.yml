@@ -4,6 +4,14 @@ services:
     image: eclipse-mosquitto:2.0  #imagem é um modelo que inclui o que precisamos para rodar o app
     container_name: mosquitto
     restart: unless-stopped # Reiniciar o container a menos que ele seja parado manualmente
+    environment:
+      MQTT_USER: ${MQTT_USER}
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
+    # Gera o arquivo de senhas em /tmp (fora do repositório) a partir do .env e então inicia o broker
+    command: >
+      sh -c "mosquitto_passwd -c -b /tmp/passwd $$MQTT_USER $$MQTT_PASSWORD &&
+      chown mosquitto:mosquitto /tmp/passwd &&
+      exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
     ports:
       - "1883:1883" #MQTT Padrão
       - "9001:9001" #Websocket
