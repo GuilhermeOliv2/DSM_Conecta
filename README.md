@@ -28,13 +28,17 @@ O arquivo `docker-compose.yml` sobe dois serviços:
 
 ### 1. Criar o arquivo `.env`
 
-Na raiz do projeto, crie um arquivo `.env` com as credenciais do banco. Ele não é versionado (está no `.gitignore`).
+Na raiz do projeto, crie um arquivo `.env` com as credenciais do banco e do broker MQTT. Ele não é versionado (está no `.gitignore`). Use o `.env.example` como modelo.
 
 ```
 POSTGRES_USER=seu_usuario
 POSTGRES_PASSWORD=sua_senha
 POSTGRES_DB=nome_do_banco
+MQTT_USER=seu_usuario_mqtt
+MQTT_PASSWORD=sua_senha_mqtt
 ```
+
+O broker exige autenticação: ao subir, o container cria o arquivo de senhas a partir de `MQTT_USER` e `MQTT_PASSWORD`. Clientes sem usuário e senha são recusados.
 
 ### 2. Subir os containers
 
@@ -54,7 +58,7 @@ Os dois containers devem aparecer com status `Up`.
 
 ### 4. Testar
 
-**Mosquitto** — entre no container e publique/assine uma mensagem:
+**Mosquitto** — entre no container e publique/assine uma mensagem. O broker exige o usuário e a senha do `.env`, que já estão disponíveis como variáveis dentro do container:
 
 ```bash
 docker exec -it mosquitto sh
@@ -63,11 +67,19 @@ docker exec -it mosquitto sh
 Dentro do container:
 
 ```sh
-mosquitto_sub -t teste -v &
-mosquitto_pub -t teste -m "funcionou"
+mosquitto_sub -t teste -v -u "$MQTT_USER" -P "$MQTT_PASSWORD" &
+mosquitto_pub -t teste -m "funcionou" -u "$MQTT_USER" -P "$MQTT_PASSWORD"
 ```
 
 Se aparecer `teste funcionou`, o broker está OK. Digite `exit` para sair.
+
+Para confirmar que a autenticação está ativa, publique sem usuário. Deve responder `Connection Refused: not authorised`:
+
+```sh
+mosquitto_pub -t teste -m "sem login"
+```
+
+A porta `9001` aceita MQTT sobre WebSocket (usada pelo app Flutter na versão web), com as mesmas credenciais.
 
 **PostgreSQL** — entre no container e rode uma query:
 
