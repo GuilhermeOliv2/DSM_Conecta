@@ -9,7 +9,8 @@ services:
       MQTT_PASSWORD: ${MQTT_PASSWORD}
     # Gera o arquivo de senhas em /tmp (fora do repositório) a partir do .env e então inicia o broker
     command: >
-      sh -c "mosquitto_passwd -c -b /tmp/passwd $$MQTT_USER $$MQTT_PASSWORD &&
+      sh -c "rm -f /tmp/passwd &&
+      mosquitto_passwd -c -b /tmp/passwd $$MQTT_USER $$MQTT_PASSWORD &&
       chown mosquitto:mosquitto /tmp/passwd &&
       exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
     ports:
