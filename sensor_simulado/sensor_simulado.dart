@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+// Console output is the simulator's intended interface.
+// ignore_for_file: avoid_print
+
 void main() {
   final aleatorio = Random();
 
@@ -33,8 +36,6 @@ void main() {
         'total_visitantes': totalVisitantes,
       },
     };
-
-    final json = jsonEncode(mensagem);
 
     print('Leitura: $leituras');
     print('Mensagem JSON:');
