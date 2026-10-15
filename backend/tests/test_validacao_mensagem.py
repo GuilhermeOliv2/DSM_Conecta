@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from ingestor.validador_mensagens import MensagemInvalida, validar_mensagem
+from sensor_simulado.validador_mensagens import MensagemInvalida, validar_mensagem
 
 
 def mensagem_valida():

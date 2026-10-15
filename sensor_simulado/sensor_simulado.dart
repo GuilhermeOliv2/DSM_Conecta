@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+// Console output is the simulator's intended interface.
+// ignore_for_file: avoid_print
+
 void main() {
   final aleatorio = Random();
 
@@ -22,9 +25,9 @@ void main() {
 
     final mensagem = {
       'event_id': eventId,
-      'session_id': 'sensor-simulado-01',
-      'categoria': 'contagem',
-      'origem': 'totem',
+      'session_id': 'sensor',
+      'category': 'contagem',
+      'origin': 'totem',
       'timestamp': agora.toIso8601String(),
       'schema_version': '1.0',
       'payload': {
@@ -33,8 +36,6 @@ void main() {
         'total_visitantes': totalVisitantes,
       },
     };
-
-    final json = jsonEncode(mensagem);
 
     print('Leitura: $leituras');
     print('Mensagem JSON:');
