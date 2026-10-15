@@ -22,9 +22,9 @@ void main() {
 
     final mensagem = {
       'event_id': eventId,
-      'session_id': 'sensor-simulado-01',
-      'categoria': 'contagem',
-      'origem': 'totem',
+      'session_id': 'sensor',
+      'category': 'contagem',
+      'origin': 'totem',
       'timestamp': agora.toIso8601String(),
       'schema_version': '1.0',
       'payload': {
