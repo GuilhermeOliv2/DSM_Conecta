@@ -109,30 +109,29 @@ Deve mostrar a versão do PostgreSQL com TimescaleDB. Digite `\q` para sair.
 
 ## Testes do backend
 
-Os testes do módulo de validação de mensagens ficam em `backend/tests/` e usam o [pytest](https://docs.pytest.org/). É necessário ter o Python 3 instalado.
+Os testes do módulo `sensor_simulado.validador_mensagens` ficam em `backend/tests/` e usam o [pytest](https://docs.pytest.org/). É necessário ter o Python 3 instalado.
 
 ### 1. Instalar as dependências
 
 ```bash
-cd backend
-pip install -r requirements.txt
+python -m pip install -r backend/requirements.txt
 ```
 
 ### 2. Rodar os testes
 
-Dentro de `backend/`:
+Na raiz do repositório:
 
 ```bash
-python -m pytest
+python -m pytest backend/tests
 ```
 
-Para ver também a cobertura de testes (a meta do projeto é no mínimo 70%):
+Para ver também a cobertura do validador (a meta do projeto é no mínimo 70%):
 
 ```bash
-python -m pytest --cov=ingestor
+python -m pytest backend/tests --cov=sensor_simulado.validador_mensagens --cov-report=term-missing --cov-fail-under=70
 ```
 
-Também funciona rodando da raiz do repositório com `python -m pytest backend/tests`, que é como o CI executa.
+Esse é o mesmo comando de cobertura executado pelo CI.
 
 ### 3. Análise estática
 
