@@ -147,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: sensor_simulado
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -160,7 +160,7 @@ jobs:
             echo "implemented=true" >> "$GITHUB_OUTPUT"
           else
             echo "implemented=false" >> "$GITHUB_OUTPUT"
-            echo "::warning file=app/pubspec.yaml::Flutter project not found; Flutter checks were skipped."
+            echo "::warning file=sensor_simulado/pubspec.yaml::Flutter project not found; Flutter checks were skipped."
           fi
 
       - name: Set up Flutter
