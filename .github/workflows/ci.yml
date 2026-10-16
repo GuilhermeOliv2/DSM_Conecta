@@ -55,7 +55,7 @@ jobs:
         run: python -m flake8 backend
 
       - name: Run message validator tests with coverage
-        run: python -m pytest backend/tests --cov=sensor_simulado.validador_mensagens --cov-report=term-missing --cov-fail-under=70
+        run: python -m pytest backend/tests --cov=ingestor --cov-report=term-missing --cov-fail-under=70
 
   integration:
     name: Compose integration checks
@@ -152,7 +152,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check whether the Flutter app is implemented
+      - name: Check whether the Flutter project is implemented
         id: app-status
         shell: bash
         run: |
@@ -160,7 +160,7 @@ jobs:
             echo "implemented=true" >> "$GITHUB_OUTPUT"
           else
             echo "implemented=false" >> "$GITHUB_OUTPUT"
-            echo "::warning file=sensor_simulado/pubspec.yaml::Flutter app not implemented yet; Flutter checks were skipped."
+            echo "::warning file=sensor_simulado/pubspec.yaml::Flutter project not found; Flutter checks were skipped."
           fi
 
       - name: Set up Flutter
