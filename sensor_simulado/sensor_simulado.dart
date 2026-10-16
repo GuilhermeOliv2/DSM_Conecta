@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -26,7 +28,7 @@ void main() {
     final mensagem = {
       'event_id': eventId,
       'session_id': 'sensor',
-      'category': 'contagem',
+      'category': 'sensor',
       'origin': 'totem',
       'timestamp': agora.toIso8601String(),
       'schema_version': '1.0',
