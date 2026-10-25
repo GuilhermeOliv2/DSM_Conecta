@@ -146,6 +146,43 @@ O CI roda esse comando e também reprova o pull request se a cobertura ficar aba
 
 > O desenvolvimento segue TDD: o teste é commitado antes do código que o faz passar, e o CI (GitHub Actions) roda a suíte a cada push e pull request.
 
+## Receber leituras do sensor simulado via MQTT
+
+O nó sensor publica eventos diretamente no broker MQTT, no tópico
+`dsm/prod/totem/sensor/contagem`. O consumidor Python valida o JSON, o tópico
+e os campos obrigatórios, exibindo `ACEITO` ou `RECUSADO` no terminal.
+
+Com o broker iniciado e as credenciais do `.env` disponíveis, abra um terminal
+para o consumidor:
+
+```bash
+cd backend
+$env:MQTT_USER="seu_usuario_mqtt"
+$env:MQTT_PASSWORD="sua_senha_mqtt"
+python -m ingestor.mqtt_consumer
+```
+
+Em outro terminal, execute o nó sensor:
+
+```bash
+cd sensor_simulado
+dart run -DMQTT_USER=seu_usuario_mqtt -DMQTT_PASSWORD=sua_senha_mqtt sensor_simulado.dart
+```
+
+Por padrão, o simulador conecta em `127.0.0.1:1883`. O endereço e a porta
+podem ser alterados sem editar o código:
+
+```bash
+dart run -DMQTT_HOST=127.0.0.1 -DMQTT_PORT=1883 \
+  -DMQTT_USER=seu_usuario_mqtt -DMQTT_PASSWORD=sua_senha_mqtt \
+  sensor_simulado.dart
+```
+
+Cada publicação usa QoS 1 e retenção. O cliente também configura uma mensagem
+de última vontade no tópico `dsm/prod/totem/sensor/status`. A API FastAPI
+continua disponível para consultas e integrações HTTP, mas não substitui o
+transporte MQTT exigido pela arquitetura.
+
 ## Estrutura do projeto
 
 ```
@@ -160,7 +197,7 @@ DSM_Conecta/
 
 ## Próximos passos
 
-- [ ] Serviço Python para consumir as mensagens MQTT
+- [x] Serviço Python para consumir e validar as mensagens MQTT
 - [ ] API FastAPI para as consultas
 - [ ] App Flutter
 - [ ] Scripts SQL das tabelas de telemetria
