@@ -1,3 +1,7 @@
 pytest
 pytest-cov
 flake8
+fastapi
+uvicorn
+httpx
+paho-mqtt

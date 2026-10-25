@@ -8,6 +8,28 @@ servers:
     description: Servidor Local
 
 paths:
+  /telemetry/events:
+    post:
+      summary: Recebe um evento do aplicativo ou do nó sensor simulado
+      description: Valida e aceita eventos de telemetria antes da ingestão.
+      parameters:
+        - name: X-MQTT-Topic
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Tópico de origem usado para validar a hierarquia MQTT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelemetryEvent'
+      responses:
+        '202':
+          description: Evento aceito ou duplicata já processada.
+        '422':
+          description: Evento ou tópico inválido.
   /course:
     get:
       summary: Retorna informações institucionais do curso (RF01)
@@ -146,6 +168,35 @@ paths:
 
 components:
   schemas:
+    TelemetryEvent:
+      type: object
+      required:
+        - event_id
+        - session_id
+        - category
+        - origin
+        - timestamp
+        - schema_version
+        - payload
+      properties:
+        event_id:
+          type: string
+        session_id:
+          type: string
+        category:
+          type: string
+        origin:
+          type: string
+          enum: [app, totem]
+        timestamp:
+          type: string
+          format: date-time
+        schema_version:
+          type: string
+          example: "1.0"
+        payload:
+          type: object
+          additionalProperties: true
     CourseDetails:
       type: object
       properties:
