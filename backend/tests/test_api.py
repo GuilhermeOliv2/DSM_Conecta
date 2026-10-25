@@ -1,68 +1,72 @@
-import json
+from types import SimpleNamespace
 
-from fastapi.testclient import TestClient
+import pytest
 
-from API.main import app, clear_received_events
-
-
-def valid_event():
-    return {
-        "event_id": "sensor-event-001",
-        "session_id": "sensor",
-        "category": "sensor",
-        "origin": "totem",
-        "timestamp": "2026-10-23T02:00:00Z",
-        "schema_version": "1.0",
-        "payload": {
-            "sensor_id": "totem-01",
-            "novos_visitantes": 2,
-            "total_visitantes": 12,
-        },
-    }
+from ingestor import mqtt_consumer
+from ingestor.validador_mensagens import MensagemInvalida
 
 
 def setup_function():
-    clear_received_events()
+    mqtt_consumer._mensagens_processadas.clear()
 
 
-def test_recebe_evento_do_sensor():
-    client = TestClient(app)
+def test_on_connect_assina_topicos_quando_conecta():
+    chamadas = []
 
-    response = client.post(
-        "/api/v1/telemetry/events",
-        json=valid_event(),
-        headers={"X-MQTT-Topic": "dsm/prod/totem/sensor/totem-01"},
-    )
+    client = SimpleNamespace(subscribe=lambda topico, qos: chamadas.append((topico, qos)))
 
-    assert response.status_code == 202
-    assert response.json() == {
-        "accepted": True,
-        "event_id": "sensor-event-001",
-    }
+    mqtt_consumer._on_connect(client, None, None, 0)
+
+    assert chamadas == [
+        (mqtt_consumer.TOPICO_LEITURAS, 1),
+        (mqtt_consumer.TOPICO_STATUS, 1),
+    ]
 
 
-def test_rejeita_topico_incompativel():
-    client = TestClient(app)
+def test_on_connect_nao_assina_topicos_quando_recusado():
+    client = SimpleNamespace(subscribe=lambda *_args, **_kwargs: pytest.fail())
 
-    response = client.post(
-        "/api/v1/telemetry/events",
-        content=json.dumps(valid_event()),
-        headers={
-            "Content-Type": "application/json",
-            "X-MQTT-Topic": "dsm/prod/app/sensor/device-01",
-        },
-    )
-
-    assert response.status_code == 422
+    mqtt_consumer._on_connect(client, None, None, 5)
 
 
-def test_descarta_evento_duplicado():
-    client = TestClient(app)
-    event = valid_event()
+def test_on_message_status_imprime_status(capsys):
+    mensagem = SimpleNamespace(topic=mqtt_consumer.TOPICO_STATUS, payload=b"ok")
 
-    primeira = client.post("/api/v1/telemetry/events", json=event)
-    segunda = client.post("/api/v1/telemetry/events", json=event)
+    mqtt_consumer._on_message(None, None, mensagem)
 
-    assert primeira.status_code == 202
-    assert segunda.status_code == 202
-    assert segunda.json() == {"accepted": False, "duplicate": True}
+    assert "STATUS: ok" in capsys.readouterr().out
+
+
+def test_on_message_invalida_rejeita_evento(monkeypatch, capsys):
+    def falha_validacao(*_args, **_kwargs):
+        raise MensagemInvalida("erro de validacao")
+
+    monkeypatch.setattr(mqtt_consumer, "validar_mensagem", falha_validacao)
+    mensagem = SimpleNamespace(topic=mqtt_consumer.TOPICO_LEITURAS, payload=b"{}")
+
+    mqtt_consumer._on_message(None, None, mensagem)
+
+    assert "RECUSADO: erro de validacao" in capsys.readouterr().out
+
+
+def test_on_message_aceita_evento_valido(monkeypatch, capsys):
+    def retorna_evento(*_args, **_kwargs):
+        return {"event_id": "evento-1"}
+
+    monkeypatch.setattr(mqtt_consumer, "validar_mensagem", retorna_evento)
+    mensagem = SimpleNamespace(topic=mqtt_consumer.TOPICO_LEITURAS, payload=b"{}")
+
+    mqtt_consumer._on_message(None, None, mensagem)
+
+    saida = capsys.readouterr().out
+    assert "ACEITO: event_id=evento-1" in saida
+    assert f"topico={mqtt_consumer.TOPICO_LEITURAS}" in saida
+
+
+def test_on_message_descarta_duplicado(monkeypatch, capsys):
+    monkeypatch.setattr(mqtt_consumer, "validar_mensagem", lambda *_args, **_kwargs: None)
+    mensagem = SimpleNamespace(topic=mqtt_consumer.TOPICO_LEITURAS, payload=b"{}")
+
+    mqtt_consumer._on_message(None, None, mensagem)
+
+    assert "RECUSADO: mensagem duplicada" in capsys.readouterr().out
