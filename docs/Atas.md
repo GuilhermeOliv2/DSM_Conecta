@@ -127,7 +127,9 @@ Pontos discutidos e decisões **tomadas:**
 - Foi discutida a criação de um arquivo de execução simplificada (por exemplo, um script .bat) para preparar dependências e facilitar a abertura dos terminais usados nos testes. Lucas ficou de estruturar essa solução.
 - A possibilidade de um agente e de dashboards administrativos foi considerada como melhoria futura. A equipe decidiu não priorizar essas funcionalidades neste momento, retomando a avaliação depois que a aplicação e a base de dados estiverem mais estruturadas.
 - Foi reforçada a necessidade de manter o backlog e os documentos na pasta docs do GitHub atualizados conforme o desenvolvimento avança.
-Ações pendentes, **prazos e responsáveis:**
+Ações pendentes
+
+**prazos e responsáveis:**
 
 - Investigar e corrigir o ajuste pendente no sensor e no CI, verificando o contorno aplicado e buscando uma solução que não ignore falhas legítimas dos testes — **responsável:** Henrique.  **Prazo mencionado:** iniciar a verificação em 27/10/2026 e corrigir o quanto antes; data de conclusão não definida.
 - Avaliar uma ferramenta de simulação para o sensor externo, como o Wokwi ou alternativa equivalente — **responsável:** Henrique. **Prazo:** não definido; atividade a iniciar durante o trabalho de conclusão da interação 2.
