@@ -82,3 +82,61 @@
 **Próxima reunião:**
 
 * 13/10/2026
+
+---
+
+
+Visualizando Ata_04.md
+**Atas de Reunião DSM - Conecta**  
+—
+
+**Ata 04**
+
+**Data:** 27/10/2026  
+**Local/Formato:** Teams - chamada  
+**Participantes:** Guilherme Vieira dos Reis de Oliveira, Henrique Conceição Brito, Lucas Machado de Alencar
+
+**Pauta:**
+
+- Alinhamento das entregas da interação 2 do projeto DSM Conecta, validação dos testes de integração MQTT e divisão das responsabilidades técnicas.
+
+**Pontos discutidos e decisões tomadas:**
+
+- Foi revisado o andamento da interação 2, incluindo o sensor simulado, o broker MQTT, a publicação de eventos e o consumidor das mensagens.
+- Durante a verificação dos testes, foi observada cobertura de aproximadamente 91%, acima do mínimo de 70% mencionado na reunião. Apesar do resultado geral, foram identificados ajustes pendentes no consumidor MQTT, especialmente na validação de mensagens duplicadas.
+- Foi discutida a possibilidade de utilizar uma ferramenta de simulação, como o Wokwi ou alternativa equivalente, para representar o sensor externo. A escolha e a implementação dessa solução ainda precisam ser verificadas.
+Atas de Reunião DSM - Conecta
+—
+
+**Ata 04**
+
+**Data:** 27/10/2026
+**Local/Formato:** Teams - chamada
+**Participantes:** Guilherme Vieira dos Reis de Oliveira, Henrique Conceição Brito, Lucas Machado de Alencar
+
+**Pauta:**
+
+Alinhamento das entregas da interação 2 do projeto DSM Conecta, validação dos testes de integração MQTT e divisão das responsabilidades técnicas.
+Pontos discutidos e decisões **tomadas:**
+
+Foi revisado o andamento da interação 2, incluindo o sensor simulado, o broker MQTT, a publicação de eventos e o consumidor das mensagens.
+Durante a verificação dos testes, foi observada cobertura de aproximadamente 91%, acima do mínimo de 70% mencionado na reunião. Apesar do resultado geral, foram identificados ajustes pendentes no consumidor MQTT, especialmente na validação de mensagens duplicadas.
+Foi discutida a possibilidade de utilizar uma ferramenta de simulação, como o Wokwi ou alternativa equivalente, para representar o sensor externo. A escolha e a implementação dessa solução ainda precisam ser verificadas.
+Foi alinhado que vale manter separados o sensor simulado e a aplicação Flutter, já que o sensor representa uma fonte externa de dados.
+A rubrica foi consultada e a leitura dos sensores do dispositivo mediante consentimento foi identificada como item da interação 2, com peso de 15% da nota. Localização, luminosidade e movimento foram citados como exemplos, mas a lista completa de sensores e o fluxo final de permissão ainda precisam ser conferidos na documentação. Foi discutida a criação de uma base mínima do aplicativo, priorizando a parte lógica de leitura e consentimento, sem necessidade de desenvolver uma interface completa nesta etapa.
+Foi discutida a criação de um arquivo de execução simplificada (por exemplo, um script .bat) para preparar dependências e facilitar a abertura dos terminais usados nos testes. Lucas ficou de estruturar essa solução.
+A possibilidade de um agente e de dashboards administrativos foi considerada como melhoria futura. A equipe decidiu não priorizar essas funcionalidades neste momento, retomando a avaliação depois que a aplicação e a base de dados estiverem mais estruturadas.
+Foi reforçada a necessidade de manter o backlog e os documentos na pasta docs do GitHub atualizados conforme o desenvolvimento avança.
+Ações pendentes, **prazos e responsáveis:**
+
+Investigar e corrigir o ajuste pendente no sensor e no CI, verificando o contorno aplicado e buscando uma solução que não ignore falhas legítimas dos testes — **responsável:** Henrique.  **Prazo mencionado:** iniciar a verificação em 27/10/2026 e corrigir o quanto antes; data de conclusão não definida.
+Avaliar uma ferramenta de simulação para o sensor externo, como o Wokwi ou alternativa equivalente — **responsável:** Henrique. **Prazo:** não definido; atividade a iniciar durante o trabalho de conclusão da interação 2.
+Implementar a base do aplicativo Flutter para leitura dos sensores do dispositivo e tratar o consentimento necessário — **responsável:** Lucas. Prazo **mencionado:** iniciar em 27/10/2026; data de conclusão não definida.
+Investigar e corrigir a validação de mensagens duplicadas no consumidor MQTT — **responsável:** Lucas. **Prazo:** não definido; ajuste identificado durante os testes da reunião.
+Estruturar um script de execução simplificada para preparar dependências e facilitar a inicialização dos terminais de teste — **responsável:** Lucas. **Prazo:** não definido.
+Atualizar continuamente o backlog e os documentos do projeto conforme as atividades forem concluídas e as prioridades mudarem — **responsável:** equipe. **Prazo:** contínuo, com revisão antes da próxima reunião.
+Retomar a avaliação de agente e dashboards após a estrutura básica da aplicação e do banco de dados estar disponível — **responsável:** equipe; Henrique se dispôs a pesquisar a viabilidade de agentes. **Prazo:** sem data definida; não é prioridade imediata.
+
+**Próxima reunião:**
+
+Data não definida. Foi sugerido realizar a próxima reunião na semana seguinte, considerando o feriado de segunda-feira mencionado durante a chamada.
