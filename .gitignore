@@ -1,18 +1,75 @@
-# Docker volumes (dados dos containers)
-/postgres/
+# Sistema operacional e IDEs
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Arquivos de ambiente e credenciais
+.env
+.env.*
+!.env.example
+
+# Dados persistentes dos containers
+/postgres/data/
 /infra/mosquitto/data/
 /infra/mosquitto/log/
 
-# Arquivos de ambiente (senhas)
-.env
-
-# Cache do Python e do pytest
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
 .pytest_cache/
 .coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
 
-# Pastas do Flutter
-/build/
-/.dart_tool/
-/pubspec.lock
+# Flutter, Dart e Pub
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/build/
+**/coverage/
+**/doc/api/
+**/.last_build_id
+**/.widget_preview/
+*.symbols
+*.symbols.zip
+*.map.json
+
+# Android e Gradle
+**/.gradle/
+**/local.properties
+**/captures/
+**/cxx/
+**/.cxx/
+**/gradle-wrapper.jar
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/*.keystore
+**/*.jks
+**/key.properties
+
+# iOS e macOS
+**/Pods/
+**/DerivedData/
+**/xcuserdata/
+**/Flutter/ephemeral/
+**/Flutter/flutter_export_environment.sh
+**/.symlinks/
+**/.generated/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+
+# Logs e arquivos temporários
+*.log
+*.swp
