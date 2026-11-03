@@ -141,4 +141,49 @@ Ações pendentes
 
 **Próxima reunião:**
 
-- 02/11/2026
+- 03/11/2026
+
+---
+
+**Ata 05**
+
+**Data:** 03/11/2026
+**Local/Formato:** Reunião on-line - chamada  
+**Participantes:** Guilherme Vieira dos Reis de Oliveira, Henrique Conceição Brito, Lucas Machado de Alencar
+
+**Pauta:**
+
+- Revisão e organização da entrega da Iteração 2 do projeto DSM Conecta.
+- Planejamento e divisão das atividades da Iteração 3, envolvendo ingestão assíncrona, modelagem da base de série temporal e carga sintética.
+- Alinhamento inicial do escopo e das atividades preparatórias da Iteração 4.
+
+**Pontos discutidos e decisões tomadas:**
+
+- Foi revisada a pendência relacionada à leitura dos sensores do celular. Lucas informou que a leitura já estava funcionando localmente e que as variações eram exibidas na tela do dispositivo, mas os dados ainda não estavam sendo enviados para outro serviço.
+- Foi discutida a necessidade de limitar a coleta ao que for efetivamente utilizado. A localização foi mencionada como possível dado útil para identificar a presença na faculdade; já os dados de movimentação do celular poderiam permanecer como informação interna do aplicativo, sem envio ou armazenamento, pois não foi identificado um uso necessário para eles.
+- Lucas informou que havia preparado uma estrutura simples relacionada ao consentimento e à possibilidade de cancelar a assinatura de um sensor, interrompendo o envio de dados. A interface apresentada ainda não correspondia à tela final do aplicativo.
+- A equipe considerou manter a implementação atual dos sensores no Flutter, que estava funcionando. A migração para uma ferramenta externa de simulação, como o Wokwi, foi tratada como melhoria opcional, a ser considerada somente se houver tempo disponível.
+- Foi esclarecida a questão das mensagens duplicadas no consumidor MQTT. O teste anterior havia enviado apenas uma mensagem, portanto ela foi corretamente aceita como primeiro envio. A validação utiliza o ID do envio; assim, o comportamento observado não foi considerado um defeito pendente.
+- As demais pendências da Iteração 2 foram consideradas encaminhadas. A equipe organizou a entrega pelo GitHub, com revisão/aprovação de pull request, acompanhamento da execução dos testes, criação da tag referente à Iteração 2 e preparação do envio do link do repositório por e-mail.
+- Foram revisados os itens de desenvolvimento da iteração: serviço de ingestão assíncrona, validação de mensagens duplicadas e persistência, base de série temporal modelada e carga sintética.
+- Henrique informou que já havia iniciado testes para gerar e validar uma carga sintética de um milhão de registros. Para isso, identificou a necessidade de ajustar ou criar estruturas e tabelas no PostgreSQL.
+- A modelagem da base de série temporal foi discutida considerando a organização temporal dos dados, a estrutura e os tipos das colunas, os padrões de consulta e a política de retenção. Também foi debatido por quanto tempo os dados seriam mantidos, quando deveriam ser descartados ou transferidos para armazenamento de longo prazo e quais informações realmente precisariam ser coletadas.
+- A definição sobre utilizar banco de dados local ou em nuvem não foi concluída durante a conversa; foi observado que essa escolha pode afetar a configuração e depender da máquina disponível.
+- A divisão de responsabilidades foi confirmada ao final da reunião: Guilherme ficará com o serviço de ingestão assíncrona; Henrique ficará com a carga sintética; Lucas ficará com a modelagem da base de série temporal.
+- A equipe fez uma leitura inicial dos entregáveis previstos: interface de programação documentada e autenticada, com endpoints de conteúdo e métricas; canal de comunicação em tempo real; e motor de análise com janela deslizante, média móvel e detecção de desvios/anomalias.
+- Foi discutida a necessidade de planejar a interface e os contratos de comunicação antes de implementar a integração. Como preparação, a equipe pretende elaborar um esboço (*sketch*) da interface e revisar os modelos que Henrique havia compartilhado no grupo. Os modelos ainda estavam em estágio inicial.
+- Foi sugerido utilizar como referência a solução de chat desenvolvida anteriormente no projeto Pikassistent, avaliando o reaproveitamento dos conceitos de comunicação e uma possível adaptação para Dart. Essa possibilidade não foi definida como decisão técnica final.
+- O funcionamento do motor de análise ainda precisava ser melhor compreendido. A descrição consultada indicava um componente que analisa continuamente os eventos recebidos, identifica tendências de acesso e detecta comportamentos fora do padrão. A equipe relacionou essa atividade à análise/mineração de dados e à geração de gráficos ou indicadores.
+- Lucas se dispôs a pesquisar melhor o requisito do motor de análise e mencionou a possibilidade de apoiar a geração e o envio de gráficos utilizando Python. A divisão definitiva das tarefas da Iteração 4 não foi fechada.
+- Também foram discutidos os critérios de latência entre a publicação e a exibição dos eventos, autenticação e tratamento de erros. A equipe reconheceu que esses pontos precisarão ser implementados e medidos;
+
+**Ações pendentes, prazos e responsáveis:**
+
+- Desenvolver o serviço de ingestão assíncrona, incluindo validação de mensagens duplicadas e persistência — **responsável:** Guilherme.
+- Implementar e validar a geração da carga sintética de um milhão de registros, realizando os ajustes necessários no PostgreSQL — **responsável:** Henrique.
+- Modelar a base de série temporal, considerando estrutura dos dados, organização temporal e política de retenção — **responsável:** Lucas.
+- Avaliar o reaproveitamento da solução de comunicação do Pikassistent como referência para a nova interface de programação — **responsável:** equipe.
+
+**Próxima reunião:**
+
+- 07/11/2026
