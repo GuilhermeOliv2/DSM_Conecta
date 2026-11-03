@@ -7,7 +7,7 @@ void main() {
   testWidgets('requires explicit consent before enabling sensors', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const DsmConectaApp());
+    await tester.pumpWidget(DsmConectaApp(onConsentChanged: (_) async {}));
 
     await tester.scrollUntilVisible(
       find.text('Consentimento não concedido. Nenhum sensor será iniciado.'),

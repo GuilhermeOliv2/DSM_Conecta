@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 
-class SensorConsentPage extends StatefulWidget {
-  const SensorConsentPage({super.key, required this.onConsentChanged});
+import '../models/device_sensor_reading.dart';
+import '../services/device_sensor_service.dart';
 
-  final ValueChanged<bool> onConsentChanged;
+class SensorConsentPage extends StatefulWidget {
+  const SensorConsentPage({
+    super.key,
+    required this.onConsentChanged,
+    this.latestReading,
+    this.sensorError,
+  });
+
+  final Future<void> Function(bool) onConsentChanged;
+  final DeviceSensorReading? latestReading;
+  final String? sensorError;
 
   @override
   State<SensorConsentPage> createState() => _SensorConsentPageState();
@@ -12,15 +22,33 @@ class SensorConsentPage extends StatefulWidget {
 class _SensorConsentPageState extends State<SensorConsentPage> {
   bool _hasReadTerms = false;
   bool _consentGiven = false;
+  bool _isUpdatingConsent = false;
+  String? _consentError;
 
-  void _updateConsent(bool value) {
+  Future<void> _updateConsent(bool value) async {
     setState(() {
-      _consentGiven = value;
-      if (!value) {
-        _hasReadTerms = false;
-      }
+      _isUpdatingConsent = true;
+      _consentError = null;
     });
-    widget.onConsentChanged(value);
+
+    try {
+      await widget.onConsentChanged(value);
+      if (mounted) {
+        setState(() {
+          _consentGiven = value;
+          _isUpdatingConsent = false;
+          if (!value) _hasReadTerms = false;
+        });
+      }
+    } on SensorAccessException catch (error) {
+      if (mounted) {
+        setState(() {
+          _consentGiven = false;
+          _isUpdatingConsent = false;
+          _consentError = error.toString();
+        });
+      }
+    }
   }
 
   @override
@@ -85,13 +113,15 @@ class _SensorConsentPageState extends State<SensorConsentPage> {
             ),
             const SizedBox(height: 8),
             FilledButton(
-              onPressed: _hasReadTerms && !_consentGiven
+              onPressed: _hasReadTerms && !_consentGiven && !_isUpdatingConsent
                   ? () => _updateConsent(true)
                   : null,
               child: const Text('Autorizar uso dos sensores'),
             ),
             OutlinedButton(
-              onPressed: _consentGiven ? () => _updateConsent(false) : null,
+              onPressed: _consentGiven && !_isUpdatingConsent
+                  ? () => _updateConsent(false)
+                  : null,
               child: const Text('Revogar consentimento'),
             ),
             const SizedBox(height: 12),
@@ -105,6 +135,59 @@ class _SensorConsentPageState extends State<SensorConsentPage> {
                     ? Colors.green.shade700
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
+            ),
+            if (widget.sensorError != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Não foi possível iniciar a coleta: ${widget.sensorError}',
+                style: TextStyle(color: Colors.red.shade700),
+              ),
+            ],
+            if (_consentError != null)
+              Text(
+                'Consentimento não aplicado: $_consentError',
+                style: TextStyle(color: Colors.red.shade700),
+              ),
+            if (_consentGiven && widget.latestReading != null)
+              _LatestReading(reading: widget.latestReading!),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LatestReading extends StatelessWidget {
+  const _LatestReading({required this.reading});
+
+  final DeviceSensorReading reading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(top: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Última leitura',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text('Horário: ${reading.generatedAt.toLocal()}'),
+            if (reading.latitude != null)
+              Text(
+                'Localização: ${reading.latitude!.toStringAsFixed(5)}, '
+                '${reading.longitude!.toStringAsFixed(5)} '
+                '(±${reading.accuracyMeters?.toStringAsFixed(1)} m)',
+              ),
+            Text('Luminosidade: ${reading.lux ?? 'indisponível'} lux'),
+            Text(
+              'Movimento: '
+              '${reading.accelerometerX?.toStringAsFixed(2) ?? '-'}, '
+              '${reading.accelerometerY?.toStringAsFixed(2) ?? '-'}, '
+              '${reading.accelerometerZ?.toStringAsFixed(2) ?? '-'} m/s²',
             ),
           ],
         ),
