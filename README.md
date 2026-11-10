@@ -146,6 +146,44 @@ O CI roda esse comando e também reprova o pull request se a cobertura ficar aba
 
 > O desenvolvimento segue TDD: o teste é commitado antes do código que o faz passar, e o CI (GitHub Actions) roda a suíte a cada push e pull request.
 
+## Carga sintética de um milhão de registros
+
+Com o Docker Desktop ativo, inicie o PostgreSQL:
+
+```powershell
+docker compose up -d postgres
+```
+
+Confirme que `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB` estão
+configuradas no `.env` da raiz e execute, também na raiz do projeto:
+
+```powershell
+python -m pip install -r backend/requirements.txt
+python backend/carga_sintetica.py
+```
+
+O comando gera um milhão de eventos de sensor em um CSV temporário e os
+carrega usando `COPY` para a tabela separada `eventos_sinteticos`. Os eventos
+seguem o formato do sensor simulado, são marcados como sintéticos e têm IDs
+estáveis: executar novamente não duplica os registros. A tabela não altera os
+dados reais nem integra o consumidor MQTT.
+
+Para guardar o CSV em vez de removê-lo após a carga, informe um caminho:
+
+```powershell
+python backend/carga_sintetica.py --csv .\carga_sintetica_1M.csv
+```
+
+Para conferir a quantidade persistida:
+
+```powershell
+docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT COUNT(*) AS registros FROM eventos_sinteticos WHERE is_synthetic;"'
+```
+
+O programa também imprime a contagem verificada ao terminar e retorna erro se
+ela ficar abaixo da quantidade solicitada. Para testar com menos linhas,
+informe `--registros`, por exemplo `--registros 1000`.
+
 ## Receber leituras do sensor simulado via MQTT
 
 O nó sensor publica eventos diretamente no broker MQTT, no tópico
