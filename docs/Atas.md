@@ -85,29 +85,6 @@
 
 ---
 
-
-Visualizando Ata_04.md
-**Atas de Reunião DSM - Conecta**  
-—
-
-**Ata 04**
-
-**Data:** 27/10/2026  
-**Local/Formato:** Teams - chamada  
-**Participantes:** Guilherme Vieira dos Reis de Oliveira, Henrique Conceição Brito, Lucas Machado de Alencar
-
-**Pauta:**
-
-- Alinhamento das entregas da interação 2 do projeto DSM Conecta, validação dos testes de integração MQTT e divisão das responsabilidades técnicas.
-
-**Pontos discutidos e decisões tomadas:**
-
-- Foi revisado o andamento da interação 2, incluindo o sensor simulado, o broker MQTT, a publicação de eventos e o consumidor das mensagens.
-- Durante a verificação dos testes, foi observada cobertura de aproximadamente 91%, acima do mínimo de 70% mencionado na reunião. Apesar do resultado geral, foram identificados ajustes pendentes no consumidor MQTT, especialmente na validação de mensagens duplicadas.
-- Foi discutida a possibilidade de utilizar uma ferramenta de simulação, como o Wokwi ou alternativa equivalente, para representar o sensor externo. A escolha e a implementação dessa solução ainda precisam ser verificadas.
-Atas de Reunião DSM - Conecta
-—
-
 **Ata 04**
 
 **Data:** 27/10/2026
@@ -187,3 +164,43 @@ Ações pendentes
 **Próxima reunião:**
 
 - 07/11/2026
+
+---
+
+**Ata 06**
+
+**Data:** 10/11/2026  
+**Local/Formato:** Reunião on-line - chamada  
+**Participantes:** Guilherme Vieira dos Reis de Oliveira, Henrique Conceição Brito, Lucas Machado de Alencar
+
+**Pauta:**
+
+- Revisão do desenvolvimento da Iteração 3 do projeto DSM Conecta, envolvendo o serviço de ingestão, a modelagem da base de dados e a carga sintética de um milhão de registros.
+- Análise dos testes, revisão de pull requests e alinhamento da integração entre os dados do sensor e do aplicativo.
+- Planejamento inicial da próxima etapa, identificada na reunião como Iteração 4, com levantamento de requisitos de interface, telas e funcionalidades administrativas.
+
+**Pontos discutidos e decisões tomadas:**
+
+### Iteração 3 - Ingestão e armazenamento
+
+- Guilherme apresentou alterações relacionadas ao serviço de ingestão, incluindo uma estrutura de fila e tratamento de erros. A implementação ainda dependia do alinhamento do modelo de dados com Lucas para concluir a persistência no banco.
+- Foi discutida a organização dos projetos de sensor e aplicativo. Os testes que antes apontavam para a estrutura do sensor foram ajustados para o aplicativo Flutter, mantendo o sensor como uma origem independente. Também foram comentadas alterações nos arquivos de configuração e dependências dos projetos.
+- Lucas apresentou um diagrama preliminar da base de dados, com tabelas e relacionamentos, incluindo chaves primárias e estrangeiras. A estrutura ainda precisava ser revisada e convertida em SQL. Henrique informou que também havia criado uma estrutura no PostgreSQL e se comprometeu a compartilhá-la para apoiar a modelagem temporal.
+- A equipe discutiu que a modelagem deverá considerar as duas origens de eventos: o sensor simulado e o aplicativo. Os campos utilizados inicialmente foram baseados no formato dos eventos do sensor, mas Lucas observou que será necessário permitir a inclusão dos eventos provenientes do aplicativo posteriormente.
+- Henrique apresentou o desenvolvimento da carga sintética prevista para gerar um milhão de registros. A solução utiliza dados armazenados na tabela de eventos sintéticos do PostgreSQL e gera um arquivo CSV local para apoiar a revisão da requisição dos dados. Foram mencionados um milhão registros iniciais utilizados em testes, que precisariam ser considerados na conferência da quantidade final.
+- Durante a execução, foram observadas divergências na validação da quantidade persistida. O resultado indicava aproximadamente 999.999 registros e, mesmo após ajustes na quantidade solicitada, a mensagem de quantidade persistida abaixo do solicitado continuou aparecendo. A equipe investigou a forma como o total era obtido e comparado, mas não confirmou uma correção definitiva durante a reunião.
+- A leitura dos registros também apresentou comportamento inesperado: em determinados testes, a consulta retornava apenas um registro, mesmo havendo mais dados na tabela. Lucas sugeriu avaliar o uso de **Pandas** para transformar os dados em um DataFrame e de **DuckDB** para consultar os dados, como alternativa ao uso atual de cursor/consulta pelo Psycopg. Henrique se comprometeu a experimentar essas ferramentas.
+- Durante a revisão do pull request, foi apontado que alguns testes não cobriam adequadamente funções relacionadas ao carregamento dos dados. A equipe optou por fechar a solicitação atual para que os ajustes fossem feitos e uma nova pull request fosse aberta após a correção. Também foi sugerido separar os arquivos de teste e organizar os commits para manter o histórico das alterações.
+
+**Ações pendentes, prazos e responsáveis:**
+
+- Finalizar o serviço de ingestão assíncrona, incluindo a integração com o modelo de dados, persistência e tratamento de erros — **responsável:** Guilherme.
+- Compartilhar a estrutura/tabelas criadas no PostgreSQL para apoiar a modelagem e a integração dos dados — **responsável:** Henrique. 
+- Revisar e consolidar a modelagem da base de série temporal, considerando os eventos do sensor e do aplicativo, e preparar a estrutura SQL correspondente — **responsável:** Lucas, em conjunto com Henrique.
+- Ajustar a carga sintética e investigar a divergência entre a quantidade solicitada e a quantidade persistida — **responsável:** Henrique, com apoio de Guilherme e Lucas nos testes.
+- Testar o uso de Pandas e DuckDB para leitura e consulta dos dados, verificando se a alternativa resolve o retorno incompleto de registros — **responsável:** Henrique.
+- Corrigir os pontos identificados na revisão dos testes, organizar os commits e abrir uma nova pull request após os ajustes — **responsável:** Henrique, com revisão da equipe. 
+
+**Próxima reunião:** 
+
+- 14/11/2026
