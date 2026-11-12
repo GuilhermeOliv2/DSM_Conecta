@@ -6,3 +6,4 @@ uvicorn
 httpx
 paho-mqtt
 psycopg2-binary
+pandas
