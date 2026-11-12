@@ -21,14 +21,16 @@ def mensagem_valida():
 class RepositorioFalso:
     def __init__(self, falhar=False):
         self.gravadas = []
+        self.topicos = []
         self.falhar = falhar
 
-    async def salvar(self, evento):
+    async def salvar(self, evento, topico=None):
         if self.falhar:
             raise RuntimeError("banco indisponivel")
         if any(g["event_id"] == evento["event_id"] for g in self.gravadas):
             return False
         self.gravadas.append(evento)
+        self.topicos.append(topico)
         return True
 
 
@@ -40,6 +42,16 @@ def test_mensagem_nova_e_gravada():
 
     assert resultado == GRAVADA
     assert len(repo.gravadas) == 1
+
+
+def test_topico_da_mensagem_chega_ao_repositorio():
+    repo = RepositorioFalso()
+    ingestor = Ingestor(repo)
+    topico = "dsm/prod/app/interacao/tela"
+
+    asyncio.run(ingestor.processar(json.dumps(mensagem_valida()), topico))
+
+    assert repo.topicos == [topico]
 
 
 def test_mensagem_repetida_nao_e_gravada_de_novo():
