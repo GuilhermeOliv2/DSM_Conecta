@@ -5,9 +5,12 @@ import os
 import random
 import sys
 import tempfile
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 TOTAL_REGISTROS_PADRAO = 1_000_000
@@ -27,34 +30,34 @@ def gerar_csv(caminho, quantidade, seed=42):
     aleatorio = random.Random(seed)
     instante = datetime.now(timezone.utc) - timedelta(days=30)
     total_visitantes = 0
+    registros = []
 
-    with Path(caminho).open("w", newline="", encoding="utf-8") as arquivo:
-        escritor = csv.writer(arquivo)
-        escritor.writerow(CAMPOS_CSV)
-
-        for numero in range(1, quantidade + 1):
-            novos_visitantes = aleatorio.randint(0, 3)
-            total_visitantes += novos_visitantes
-            payload = {
-                "sensor_id": "totem-01",
-                "novos_visitantes": novos_visitantes,
-                "total_visitantes": total_visitantes,
-            }
-            escritor.writerow(
-                (
-                    uuid.uuid5(NAMESPACE_EVENTOS, str(numero)),
-                    "sensor",
-                    "sensor",
-                    "totem",
-                    instante.isoformat(),
-                    "1.0",
-                    json.dumps(payload, separators=(",", ":")),
-                )
+    for numero in range(1, quantidade + 1):
+        novos_visitantes = aleatorio.randint(0, 3)
+        total_visitantes += novos_visitantes
+        payload = {
+            "sensor_id": "totem-01",
+            "novos_visitantes": novos_visitantes,
+            "total_visitantes": total_visitantes,
+        }
+        registros.append(
+            (
+                uuid.uuid5(NAMESPACE_EVENTOS, str(numero)),
+                "sensor",
+                "sensor",
+                "totem",
+                instante.isoformat(),
+                "1.0",
+                json.dumps(payload, separators=(",", ":")),
             )
-            instante += timedelta(seconds=2)
+        )
+        instante += timedelta(seconds=2)
+
+    dados = pd.DataFrame(registros, columns=CAMPOS_CSV)
+    dados.to_csv(caminho, index=False, encoding="utf-8", lineterminator="\n")
 
 
-def carregar_csv(caminho, configuracao_banco):
+def criar_tabela_eventos_sinteticos(configuracao_banco):
     import psycopg2
 
     with psycopg2.connect(**configuracao_banco) as conexao:
@@ -79,6 +82,13 @@ def carregar_csv(caminho, configuracao_banco):
                     ON eventos_sinteticos (event_timestamp)
                 """
             )
+
+
+def carregar_csv(caminho, configuracao_banco):
+    import psycopg2
+
+    with psycopg2.connect(**configuracao_banco) as conexao:
+        with conexao.cursor() as cursor:
             cursor.execute(
                 """
                 CREATE TEMP TABLE carga_sintetica_stage (
@@ -90,6 +100,7 @@ def carregar_csv(caminho, configuracao_banco):
                 leitor = csv.DictReader(arquivo)
                 if tuple(leitor.fieldnames or ()) != CAMPOS_CSV:
                     raise ValueError("O cabeçalho do CSV da carga não é válido.")
+                arquivo.seek(0)
                 cursor.copy_expert(
                     """
                     COPY carga_sintetica_stage (
@@ -183,19 +194,43 @@ def main():
     except ValueError as erro:
         parser.error(str(erro))
 
+    inicio_total = time.perf_counter()
+    inicio_preparacao = time.perf_counter()
+    criar_tabela_eventos_sinteticos(configuracao_banco)
+    tempo_preparacao = time.perf_counter() - inicio_preparacao
     if argumentos.csv:
         caminho_csv = argumentos.csv.resolve()
         caminho_csv.parent.mkdir(parents=True, exist_ok=True)
+        inicio_geracao = time.perf_counter()
         gerar_csv(caminho_csv, argumentos.registros)
+        tempo_geracao = time.perf_counter() - inicio_geracao
+        inicio_carga = time.perf_counter()
         inseridos, total = carregar_csv(caminho_csv, configuracao_banco)
+        tempo_carga = time.perf_counter() - inicio_carga
     else:
         with tempfile.TemporaryDirectory(prefix="dsm-carga-") as diretorio:
             caminho_csv = Path(diretorio) / "carga_sintetica.csv"
+            inicio_geracao = time.perf_counter()
             gerar_csv(caminho_csv, argumentos.registros)
+            tempo_geracao = time.perf_counter() - inicio_geracao
+            inicio_carga = time.perf_counter()
             inseridos, total = carregar_csv(caminho_csv, configuracao_banco)
+            tempo_carga = time.perf_counter() - inicio_carga
+    tempo_total = time.perf_counter() - inicio_total
 
     print(f"Novos registros inseridos: {inseridos}")
     print(f"Total de registros sintéticos na tabela: {total}")
+    print("Relatório de desempenho:")
+    print(f"Tempo de preparação do banco: {tempo_preparacao:.2f} s")
+    print(f"Tempo de geração do CSV: {tempo_geracao:.2f} s")
+    print(f"Tempo de carga no PostgreSQL: {tempo_carga:.2f} s")
+    print(f"Tempo total: {tempo_total:.2f} s")
+    if tempo_geracao > 0:
+        taxa_geracao = argumentos.registros / tempo_geracao
+        print(f"Taxa de geração: {taxa_geracao:.2f} registros/s")
+    if tempo_carga > 0:
+        taxa_carga = inseridos / tempo_carga
+        print(f"Taxa de inserção: {taxa_carga:.2f} registros/s")
     if total < argumentos.registros:
         print(
             "A quantidade persistida ficou abaixo do solicitado.",
