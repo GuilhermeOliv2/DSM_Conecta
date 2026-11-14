@@ -67,3 +67,20 @@ A separação rígida em camadas traz vantagens diretas para a qualidade, a manu
     
 * **Conformidade com os Requisitos do Projeto:** Essa estrutura sustenta os requisitos de portabilidade, manutenibilidade e testabilidade estipulados na arquitetura distribuída do DSM Conecta, garantindo um código limpo, auditável e preparado para alta cobertura de testes.
 
+---
+
+## 5. Iteração 3 — série temporal e telemetria
+
+A iteração 3 tem foco na persistência temporal dos eventos gerados pelo aplicativo e pelo totem. O fluxo principal é:
+
+1. coleta dos sensores no celular e do totem simulado;
+2. publicação no broker MQTT;
+3. validação e deduplicação;
+4. gravação em tabela temporal;
+5. agregação horária e diária;
+6. exposição pública de dados anonimizados.
+
+A modelagem deve respeitar a minimização de dados: do celular, apenas `latitude`, `longitude` e `precision`/`accuracy` entram no banco; luminosidade, acelerômetro e demais leituras permanecem no próprio dispositivo. Os dados do totem são tratados separadamente, pois representam contagem de presença ou status do ambiente.
+
+A documentação detalhada da organização temporal está em [organizacao-serie-temporal.md](./organizacao-serie-temporal.md). Nela, fica explícito o particionamento por `occurred_at`, as políticas de compressão e retenção, os índices temporais e os diagramas de relacionamento entre as tabelas.
+
