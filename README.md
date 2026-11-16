@@ -95,6 +95,34 @@ SELECT version();
 
 Deve mostrar a versão do PostgreSQL com TimescaleDB. Digite `\q` para sair.
 
+### 5. Executar a estrutura da série temporal
+
+O arquivo [`postgres/init/query_serieTemporal.sql`](postgres/init/query_serieTemporal.sql)
+contém as tabelas, o particionamento, as políticas de retenção e as
+agregações da Iteração 3.
+
+Em uma instalação nova, o Docker executa automaticamente os arquivos SQL da
+pasta `postgres/init` durante a criação do banco. Para executar manualmente
+com o container já iniciado:
+
+```bash
+docker exec -i dsm_conecta_db psql -U seu_usuario -d nome_do_banco < postgres/init/query_serieTemporal.sql
+```
+
+Se o banco já tiver sido criado, os scripts de inicialização não são
+executados novamente automaticamente. Nesse caso, use o comando manual acima.
+O SQL utiliza `IF NOT EXISTS` em suas estruturas principais, permitindo
+reexecutá-lo sem recriar as tabelas existentes.
+
+Para conferir as tabelas criadas:
+
+```bash
+docker exec -it dsm_conecta_db psql -U seu_usuario -d nome_do_banco -c "\dt"
+```
+
+As principais estruturas são `telemetry_event`, `telemetry_event_dedup`,
+`telemetry_hourly`, `telemetry_daily` e `public_telemetry_daily`.
+
 ### Comandos úteis
 
 | Ação | Comando |
