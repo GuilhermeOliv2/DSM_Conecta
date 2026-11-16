@@ -28,11 +28,11 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 | RF10 | Registrar a presença do visitante em evento de divulgação por leitura de código QR. | média | Não Iniciado |  | Iteração 5 |
 | RF11 | Registrar a presença por proximidade geográfica | baixa | Não Iniciado |  | Iteração 5 |
 | RF12 | Apresentar ao visitante o histórico das próprias interações | baixa | Não Iniciado |  | Iteração 5 |
-| RF13 | Publicar cada interação relevante do aplicativo como mensagem em tópico do broker de mensageria. | média | Não Iniciado |  | Iteração 2 |
-| RF14 | Coletar leituras dos sensores do dispositivo | média | Não Iniciado |  | Iteração 2 |
-| RF15 | Receber leituras provenientes de nó sensor externo simulado | média | Não Iniciado |  | Iteração 2 |
-| RF16 | Validar o formato e a versão do esquema de cada mensagem recebida antes da persistência. | alta | Em Desenvolvimento | Módulo de validação implementado com TDD (formato, campos, tipos, versão do esquema, timestamp e tópico). Falta integrar ao serviço de ingestão. | Iteração 3 |
-| RF17 | Descartar mensagens duplicadas ou malformadas | alta | Em Desenvolvimento | Descarte e log implementados no módulo de validação. Falta integrar ao serviço de ingestão. | Iteração 3 |
+| RF13 | Publicar cada interação relevante do aplicativo como mensagem em tópico do broker de mensageria. | média | Não Iniciado | O aplicativo ainda não publica eventos; hoje só o sensor simulado do totem publica no broker. | Iteração 2 |
+| RF14 | Coletar leituras dos sensores do dispositivo | média | Em Desenvolvimento | O aplicativo lê os sensores do dispositivo (localização, luminosidade e movimento) e tem tela de consentimento. Os dados ainda não são enviados ao broker (Ata 05). | Iteração 2 |
+| RF15 | Receber leituras provenientes de nó sensor externo simulado | média | Concluído | O sensor simulado publica no broker e o consumidor MQTT recebe e valida as mensagens (PR #17). | Iteração 2 |
+| RF16 | Validar o formato e a versão do esquema de cada mensagem recebida antes da persistência. | alta | Em Desenvolvimento | Módulo de validação implementado com TDD (formato, campos, tipos, versão do esquema, timestamp e tópico) e usado pelo consumidor MQTT. Falta ligar à persistência no serviço de ingestão. | Iteração 3 |
+| RF17 | Descartar mensagens duplicadas ou malformadas | alta | Em Desenvolvimento | Descarte e log implementados no módulo de validação; a deduplicação por event_id roda em memória no consumidor MQTT. Falta a deduplicação feita pelo banco (RNF07). | Iteração 3 |
 | RF18 | Persistir as mensagens válidas na base de série temporal preservando o instante de origem. | alta | Não Iniciado |  | Iteração 3 |
 | RF19 | Exibir, em tempo real, a contagem de visitantes ativos e de registros de presença por evento. | média | Não Iniciado |  | Iteração 4 |
 | RF20 | Apresentar o ranking dos conteúdos mais acessados em janela deslizante configurável. | baixa | Não Iniciado |  | Iteração 4 |
@@ -46,7 +46,7 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 
 | ID | Descrição do Requisito | Prioridade | Status | Comentários | Iteração Prevista |
 | ----- | ----- | ----- | :---: | ----- | :---: |
-| RNF01 | O aplicativo cliente deve ser gerado para Android, navegador web e desktop com um unico codigo | alta | Não Iniciado |  | Iteração 5 |
+| RNF01 | O aplicativo cliente deve ser gerado para Android, navegador web e desktop com um unico codigo | alta | Em Desenvolvimento | Projeto Flutter do aplicativo criado em app/dsm_conecta; os builds das três plataformas ainda não foram verificados. | Iteração 5 |
 | RNF02 | As interfaces de programação devem ser descritas em OpenAPI 3, e o transporte de telemetria deve seguir o protocolo MQTT na versão 3.1.1 ou superior. | alta | Em Desenvolvimento |  | Iteração 4 |
 | RNF03 | Os dados abertos devem ser publicados em formatos não proprietários, com dicionário de dados disponível. |   média | Não Iniciado |  | Iteração 6 |
 | RNF04 | 95% das requisições à interface de programação devem ser respondidas em até 500 milissegundos sob carga nominal. | alta | Não Iniciado |  | Iteração 4 |
@@ -58,8 +58,8 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 | RNF10 | O cliente deve permanecer alheio à localização física dos serviços consumidos, atendendo às transparências de acesso e de localização | baixa | Não Iniciado |  | Iteração 4 |
 | RNF11 | A indisponibilidade temporária do broker não deve interromper o uso do aplicativo, que armazena os eventos localmente para envio posterior | média | Não Iniciado |  | Iteração 5 |
 | RNF12 | O acesso administrativo deve exigir autenticação por token e trafegar sobre canal cifrado | alta | Não Iniciado |  | Iteração 4 |
-| RNF13 | Credenciais e segredos devem residir em variáveis de ambiente, nunca no repositório de código | alta | Em Desenvolvimento | Já implementado o .gitignore com .env dentro dele para armazenamento de senhas e segredos com segurança | Iteração 4 |
-| RNF14 | A coleta de dados deve ser precedida de consentimento explícito, informado e revogável, em conformidade com a Lei nº 13.709/2018 | alta | Não Iniciado |  | Iteração 2 |
+| RNF13 | Credenciais e segredos devem residir em variáveis de ambiente, nunca no repositório de código | alta | Concluído | O .env é ignorado pelo git e o .env.example lista apenas os nomes das variáveis. As credenciais do banco, do broker, do consumidor e do sensor vêm de variáveis de ambiente. | Iteração 4 |
+| RNF14 | A coleta de dados deve ser precedida de consentimento explícito, informado e revogável, em conformidade com a Lei nº 13.709/2018 | alta | Em Desenvolvimento | O aplicativo tem tela de consentimento e a opção de cancelar um sensor, interrompendo o envio. A tela final ainda não existe (Ata 05). | Iteração 2 |
 | RNF15 | A identificação do visitante deve ocorrer por identificador aleatório de sessão, sem vinculação a dado pessoal | alta | Não Iniciado |  | Iteração 2 |
 | RNF16 | O painel público não deve exibir informação que permita a reidentificação de um visitante | alta | Não Iniciado |  | Iteração 5 |
 | RNF17 | A cobertura de testes automatizados do back-end deve ser de no mínimo setenta por cento das linhas | média | Concluído | Cobertura atual do módulo de validação: 100%. O CI mede a cobertura e reprova abaixo de 70%. | Iteração 1 |
@@ -73,9 +73,9 @@ O DSM Conecta é a plataforma oficial do curso de Desenvolvimento de Software Mu
 | ----- | ----- | ----- | :---: | ----- |
 | 0 | 14/09/2026 | Iniciação, levantamento de requisitos, arquitetura, contratos e ambiente docker compose | Concluída | Formalizada na Ata 01 (22/09/2026). |
 | 1 | 28/09/2026 | Controle de versão, integração contínua e fundação da prática de testes | Concluída | Ramo principal protegido, pipeline de CI com análise estática (flake8) e cobertura mínima de 70%, e primeira suíte de testes com TDD. |
-| 2 | 12/10/2026 | Broker de mensageria, produtores de dados e nó sensor simulado | Não Iniciado |  |
-| 3 | 26/10/2026 | Serviço de ingestão concorrente e persistência em série temporal | Não Iniciado |  |
-| 4 | 09/11/2026 | Interface de programação e motor de análise em tempo real | Não Iniciado |  |
+| 2 | 12/10/2026 | Broker de mensageria, produtores de dados e nó sensor simulado | Concluída | Entregue com atraso por e-mail, com a tag v0.3.0-iter2 (03/11/2026), conforme a Ata 05. |
+| 3 | 26/10/2026 | Serviço de ingestão concorrente e persistência em série temporal | Em Andamento | Divisão da Ata 05 (03/11/2026): ingestão assíncrona (Guilherme), carga sintética (Henrique) e modelagem da base de série temporal (Lucas). |
+| 4 | 09/11/2026 | Interface de programação e motor de análise em tempo real | Não Iniciado | Planejamento inicial na Ata 05 (03/11/2026). |
 | 5 | 23/11/2026 | Aplicativo cliente nas três plataformas e painel administrativo | Não Iniciado |  |
 | 6 | 07/12/2026 | Ensaio de carga, documentação final, ação de divulgação e apresentação pública | Não Iniciado |  |
 

@@ -5,4 +5,5 @@ fastapi
 uvicorn
 httpx
 paho-mqtt
-psycopg[binary]>=3.2,<4
+pandas
+psycopg2-binary
