@@ -24,7 +24,7 @@ class Ingestor:
             return INVALIDA
 
         try:
-            gravou = await self._repositorio.salvar(evento)
+            gravou = await self._repositorio.salvar(evento, topico)
         except Exception:
             logger.exception("Falha ao gravar mensagem %s", evento["event_id"])
             return ERRO

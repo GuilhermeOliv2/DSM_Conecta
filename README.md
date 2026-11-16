@@ -178,7 +178,9 @@ O CI roda esse comando e também reprova o pull request se a cobertura ficar aba
 
 O nó sensor publica eventos diretamente no broker MQTT, no tópico
 `dsm/prod/totem/sensor/contagem`. O consumidor Python valida o JSON, o tópico
-e os campos obrigatórios, exibindo `ACEITO` ou `RECUSADO` no terminal.
+e os campos obrigatórios, exibindo `ACEITO` ou `RECUSADO` no terminal. Ele
+serve só para conferir as mensagens e **não grava no banco**; para gravar, use
+o serviço de ingestão descrito na próxima seção.
 
 Com o broker iniciado e as credenciais do `.env` disponíveis, abra um terminal
 para o consumidor:
@@ -211,6 +213,52 @@ de última vontade no tópico `dsm/prod/totem/sensor/status`. A API FastAPI
 continua disponível para consultas e integrações HTTP, mas não substitui o
 transporte MQTT exigido pela arquitetura.
 
+## Serviço de ingestão (grava no PostgreSQL)
+
+O serviço assina `dsm/prod/#` no broker, valida cada mensagem e grava as
+válidas na tabela `telemetry_event` do PostgreSQL/TimescaleDB.
+
+- **Repetidas:** o próprio banco descarta (`ON CONFLICT (event_id, occurred_at) DO NOTHING`) e o serviço registra no log.
+- **Inválidas** (JSON quebrado, campo ausente, categoria ou origem fora da lista, tópico que não bate com a mensagem): vão para o log e não chegam ao banco.
+- **Status** (tópicos terminados em `/status`): apenas registrados no log, pois não são eventos.
+- **Falha do banco:** o serviço registra o erro e continua rodando.
+
+Antes de rodar, é preciso:
+
+1. Subir o broker e o banco: `docker compose up -d`.
+2. Ter a tabela `telemetry_event` criada no banco. O esquema da série temporal está em definição e ainda não está versionado neste repositório.
+3. Instalar as dependências: `python -m pip install -r backend/requirements.txt`.
+
+> Se outro container PostgreSQL (de outro projeto) estiver usando a porta
+> `5432` da máquina, o serviço conecta nele e falha com
+> `password authentication failed`. Pare o outro container ou confira com
+> `docker ps` qual deles publica a porta.
+
+Na raiz do projeto, no PowerShell, carregue o `.env` e inicie o serviço:
+
+```powershell
+Get-Content .env | ForEach-Object { if ($_ -match '^([A-Z_]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] } }
+cd backend
+python -m ingestor.servico_ingestao
+```
+
+Variáveis usadas (todas já existem no `.env`): `MQTT_USER`, `MQTT_PASSWORD`,
+`POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB` são obrigatórias;
+`MQTT_HOST`, `MQTT_PORT`, `POSTGRES_HOST` e `POSTGRES_PORT` são opcionais
+(padrão `127.0.0.1`, `1883` e `5432`).
+
+Para encerrar, use `Ctrl+C`. Com o sensor publicando, confira o que foi gravado:
+
+```powershell
+docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT origin, category, count(*) FROM telemetry_event GROUP BY 1, 2;"'
+```
+
+Como funciona por dentro:
+
+- Os eventos entram numa fila de 1000 posições e 4 trabalhadores assíncronos os gravam.
+- Se a fila enche, o callback do MQTT fica esperando uma vaga e o cliente para de ler o broker. É a contrapressão (RNF09).
+- A confirmação (QoS 1) ao broker é dada quando a mensagem entra na fila, e não quando é gravada. Se o serviço for derrubado, as mensagens que estavam na fila se perdem.
+
 ## Estrutura do projeto
 
 ```
@@ -226,6 +274,7 @@ DSM_Conecta/
 ## Próximos passos
 
 - [x] Serviço Python para consumir e validar as mensagens MQTT
+- [x] Serviço de ingestão assíncrona gravando no PostgreSQL
 - [ ] API FastAPI para as consultas
 - [ ] App Flutter
 - [ ] Scripts SQL das tabelas de telemetria
