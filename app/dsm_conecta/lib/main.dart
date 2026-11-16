@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'models/device_sensor_reading.dart';
 import 'screens/sensor_consent_page.dart';

@@ -6,3 +6,5 @@ uvicorn
 httpx
 paho-mqtt
 asyncpg
+pandas
+psycopg2-binary
