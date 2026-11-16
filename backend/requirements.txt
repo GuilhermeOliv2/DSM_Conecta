@@ -5,3 +5,5 @@ fastapi
 uvicorn
 httpx
 paho-mqtt
+pandas
+psycopg2-binary
