@@ -204,3 +204,52 @@ Ações pendentes
 **Próxima reunião:** 
 
 - 14/11/2026
+
+---
+
+**Ata 07**
+
+**Data:** 16/11/2026  
+**Local/Formato:** Reunião on-line - chamada  
+**Participantes:** Guilherme Vieira dos Reis de Oliveira, Henrique Conceição Brito, Lucas Machado de Alencar
+
+**Pauta:**
+
+- Revisão dos pull requests, conflitos e testes relacionados ao fechamento da Iteração 3 do projeto DSM Conecta.
+- Revisão dos entregáveis previstos para a Iteração 4, incluindo interface de programação, comunicação em tempo real e motor de análise.
+- Divisão das responsabilidades técnicas da Iteração 4.
+
+**Pontos discutidos e decisões tomadas:**
+
+### Iteração 3 - ingestão, armazenamento e integração
+
+- Guilherme informou que seu pull request ainda não estava adaptado à versão mais recente do modelo de banco de dados enviada por Lucas. Foi identificada a necessidade de atualizar as alterações para manter compatibilidade com a estrutura atual.
+- A equipe revisou o pull request de Lucas e analisou conflitos em arquivos do projeto, incluindo arquivos de configuração e dependências. Foi observado que algumas alterações haviam sido incorporadas depois da abertura da solicitação, o que exigia conferir as versões antes de aceitar as mudanças.
+- Durante a revisão, foram verificadas as etapas de aprovação e integração dos pull requests. O pull request de Lucas passou por revisão e foi aprovado para integração após a conferência das alterações.
+- Foi reforçada a necessidade de revisar os arquivos alterados, resolver conflitos e confirmar a execução dos testes antes de realizar o merge dos pull requests.
+
+### Iteração 4 - interface de programação, comunicação em tempo real e análise
+
+- A equipe consultou os entregáveis e critérios específicos da Iteração 4 na rubrica. Foram retomados três componentes principais: uma interface de programação documentada e autenticada, um canal de comunicação em tempo real e um motor de análise com janela deslizante, média móvel e detecção de desvios estatísticos.
+- Foi esclarecido que a interface de programação deverá permitir a troca de informações entre o aplicativo, o painel administrativo e o servidor. Foram citados como exemplos um endpoint de conteúdo, para retornar informações do curso, e endpoints de métricas, para fornecer dados de visitantes, eventos e interações ao painel administrativo.
+- Foi ressaltado que a API deverá contar com documentação que explique a utilização dos endpoints e com autenticação para proteger o acesso às informações.
+- O canal de comunicação em tempo real foi relacionado ao chat geral discutido anteriormente. A intenção é permitir a troca de informações entre os componentes do projeto enquanto os eventos acontecem.
+- O motor de análise foi explicado a partir do conceito de janela deslizante, que considera um intervalo recente de dados e descarta os registros mais antigos conforme o tempo avança. Também foram discutidas a média móvel e a detecção de comportamentos fora do padrão.
+- Como exemplo de detecção de anomalia, foi citado um cenário em que o sistema normalmente registra entre 10 e 20 visitantes por intervalo, mas passa a registrar 150. Uma variação desse tipo poderá ser identificada como comportamento anormal e gerar um alerta no painel administrativo.
+- Foi observado que a latência entre a publicação de um evento e sua exibição também será avaliada. Os participantes não conseguiram confirmar durante a reunião o limite numérico previsto, ficando pendente consultar a documentação do projeto.
+- Foi esclarecido que o desenvolvimento das telas da aplicação e do painel administrativo não é o foco desta iteração, devendo ser tratado na iteração seguinte. Para a Iteração 4, a prioridade é concluir os componentes de API, autenticação, comunicação entre os serviços e motor de análise.
+- A divisão das atividades foi encaminhada: Henrique ficará responsável pelo motor de análise com janela deslizante; Guilherme ficará responsável pelo canal de comunicação em tempo real. A API foi indicada como atividade adequada para Lucas, considerando a necessidade de desenvolver os endpoints de conteúdo e métricas, mas essa atribuição deverá ser confirmada diretamente com ele, pois Lucas não consta na lista automática de participantes da transcrição.
+
+**Ações pendentes, prazos e responsáveis:**
+
+- Adaptar o pull request de Guilherme à versão atualizada do modelo de banco de dados e verificar possíveis conflitos nos arquivos de dependências e documentação — **responsável:** Guilherme. **Prazo:**definido.
+- Conferir os checks do GitHub e a execução da suíte de testes, investigando os problemas relatados nos testes do Flutter — **responsável:** equipe. 
+- Desenvolver o motor de análise, contemplando janela deslizante, média móvel e detecção de desvios/anomalias, com testes utilizando dados controlados — **responsável:** Henrique. 
+- Desenvolver o canal de comunicação em tempo real, considerando a solução de chat geral discutida pela equipe — **responsável:** Guilherme. 
+- Desenvolver a Interface de programação documentada e autenticada, com endpoints de conteúdo e de métricas — **responsável:** Lucas
+- Alinhar com Lucas a responsabilidade pela interface de programação e desenvolver os endpoints de conteúdo e métricas, com documentação e autenticação — **responsável:** Lucas, atribuição indicada na reunião e pendente de confirmação. 
+- Consultar a documentação do projeto para confirmar o limite de latência exigido entre a publicação e a exibição dos eventos — **responsável:** equipe. Iteração 4.
+
+**Próxima reunião:**
+
+- a ser definido...
